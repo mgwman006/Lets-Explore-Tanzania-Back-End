@@ -10,11 +10,11 @@ public record TourDetailsDto(
         String title,
         String description,
         BigDecimal pricePerPerson,
-        int duration,
-        boolean isAvailableAllTheTime,
+        int durationDays,
+        String bannerImageUrl,
         String destination,
-        String getBannerImageUrl,
         List<String> photos,
-        List<TourDateDTO> AvailableDates
+        boolean hasSpecificDates,
+        TourDateDTO tourDates
 ) {
 }

@@ -1,9 +1,10 @@
 package letsexploretanzania.co.tz.letsexploretanzania.models.responses;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record TourDateDTO(
-        LocalDate startDate,
-        LocalDate endDate
+        LocalDateTime startDate,
+        LocalDateTime endDate
 ) {
 }

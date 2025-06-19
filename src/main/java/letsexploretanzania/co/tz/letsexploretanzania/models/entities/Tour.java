@@ -18,7 +18,8 @@ public class Tour {
     private String description;
     private BigDecimal pricePerPerson;
     private int durationDays;
-    private String bannerImageUrl; // Main image for display
+    private String bannerImageUrl;
+    private String destination;
     @OneToMany(
             mappedBy = "tour",
             cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE},
@@ -26,10 +27,10 @@ public class Tour {
             fetch = FetchType.LAZY
     )
     private List<Photo> photos = new ArrayList<>(); // Additional images
-    private boolean isAvailableAllTheTime;
-    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
-    private List<TourDate> availableDates = new ArrayList<>();
-    private String destination;
+    private boolean hasSpecificDates;
+    @OneToOne(mappedBy = "tour", cascade = CascadeType.ALL)
+    private TourDate tourDates;
+
 
     // @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
     // private List<Booking> bookings;
@@ -38,31 +39,19 @@ public class Tour {
     public Tour() {
     }
 
-    public Tour(String title, String description, BigDecimal pricePerPerson, int durationDays,String destination) {
+    public Tour(
+            String title,
+            String description,
+            BigDecimal pricePerPerson,
+            int durationDays,
+            String destination,
+            boolean hasSpecificDates) {
         this.title = title;
         this.description = description;
         this.pricePerPerson = pricePerPerson;
         this.durationDays = durationDays;
+        this.hasSpecificDates = hasSpecificDates;
         this.destination = destination;
-    }
-
-    public Tour(String title, String description, BigDecimal pricePerPerson, int durationDays, boolean isAvailableAllTheTime, String destination) {
-        this.title = title;
-        this.description = description;
-        this.pricePerPerson = pricePerPerson;
-        this.durationDays = durationDays;
-        this.isAvailableAllTheTime = isAvailableAllTheTime;
-        this.destination = destination;
-    }
-
-    public Tour(String title, String description, BigDecimal pricePerPerson, int durationDays, boolean isAvailableAllTheTime,String destination, List<TourDate> availableDates) {
-        this.title = title;
-        this.description = description;
-        this.pricePerPerson = pricePerPerson;
-        this.durationDays = durationDays;
-        this.isAvailableAllTheTime = isAvailableAllTheTime;
-        this.destination = destination;
-        this.availableDates = availableDates;
     }
 
 
@@ -121,24 +110,6 @@ public class Tour {
         this.photos.add(photo);
     }
 
-    public boolean isAvailableAllTheTime() {
-        return isAvailableAllTheTime;
-    }
-
-    public void setAvailableAllTheTime(boolean availableAllTheTime) {
-        isAvailableAllTheTime = availableAllTheTime;
-    }
-
-    public List<TourDate> getAvailableDates() {
-        return availableDates;
-    }
-
-    public void addAvailableDates(List<TourDate> availableDates) {
-        this.availableDates.addAll(availableDates);
-    }
-    public void addSingleAvailableDate(TourDate availableDate) {
-        this.availableDates.add(availableDate);
-    }
 
     public String getDestination() {
         return destination;
@@ -146,6 +117,22 @@ public class Tour {
 
     public void setDestination(String destination) {
         this.destination = destination;
+    }
+
+    public TourDate getTourDates() {
+        return tourDates;
+    }
+
+    public void setTourDates(TourDate tourDates) {
+        this.tourDates = tourDates;
+    }
+
+    public boolean isHasSpecificDates() {
+        return hasSpecificDates;
+    }
+
+    public void setHasSpecificDates(boolean hasSpecificDates) {
+        this.hasSpecificDates = hasSpecificDates;
     }
 }
 

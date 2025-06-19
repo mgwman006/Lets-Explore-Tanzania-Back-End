@@ -39,33 +39,57 @@ public class TourService {
         this.tourRepository = tourRepository;
     }
 
-    public Result<TourCreatedDto> addTour(TourAddDto tourRequest)
+    public Result<TourDetailsDto> addTour(TourAddDto tourRequest)
     {
         Tour tour = new Tour(
                 tourRequest.title(),
                 tourRequest.description(),
                 tourRequest.pricePerPerson(),
-                tourRequest.duration(),
-                tourRequest.isAvailableAllTheTime(),
-                tourRequest.destination()
+                tourRequest.durationDays(),
+                tourRequest.destination(),
+                tourRequest.hasSpecificDates()
         );
 
-        Tour createdTour;
+        if (tour.isHasSpecificDates())
+        {
+            TourDate tourDate = new TourDate(
+                    tourRequest.tourDates().startDate(),
+                    tourRequest.tourDates().endDate()
+            );
+            tourDate.setTour(tour);
+            tour.setTourDates(tourDate);
+        }
+
 
         try {
-            createdTour = tourRepository.save(tour);
+            tour = tourRepository.save(tour);
         } catch (Exception e) {
             return Result.failure(e.getMessage());
         }
 
+        TourDate tourDate = tour.getTourDates();
         return Result.success("tour successfully created",
-                new TourCreatedDto(
-                createdTour.getId(),
-                createdTour.getTitle(),
-                createdTour.getDescription(),
-                createdTour.getPricePerPerson(),
-                createdTour.getDurationDays(), createdTour.isAvailableAllTheTime(), createdTour.getDestination()
-        ));
+                new TourDetailsDto(
+                tour.getId(),
+                tour.getTitle(),
+                tour.getDescription(),
+                tour.getPricePerPerson(),
+                tour.getDurationDays(),
+                        tour.getBannerImageUrl(),
+                        tour.getDestination(),
+                        tour.getPhotos()
+                                .stream()
+                                .map(p -> p.getPhotoUrl())
+                                .toList()
+                        ,
+                        tour.isHasSpecificDates(),
+                        tour.isHasSpecificDates() ?
+                                new TourDateDTO(
+                                tourDate.getStartDate(),
+                                tourDate.getEndDate()
+                                ): null
+                )
+        );
     }
 
     public Result<List<TourDetailsListItemDto>> getAllTours()
@@ -88,9 +112,14 @@ public class TourService {
                                                 t.getDescription(),
                                                 t.getPricePerPerson(),
                                                 t.getDurationDays(),
-                                                t.isAvailableAllTheTime(),
+                                                t.getBannerImageUrl(),
                                                 t.getDestination(),
-                                                t.getBannerImageUrl()
+                                                t.isHasSpecificDates(),
+                                                t.isHasSpecificDates() ?
+                                                        new TourDateDTO(
+                                                                t.getTourDates().getStartDate(),
+                                                                t.getTourDates().getEndDate()
+                                                        ):null
                                         )
                                 ).toList()
 
@@ -108,7 +137,7 @@ public class TourService {
 
         Tour tour = optionalTour.get();
         List<String> photos = tour.getPhotos().stream().map(Photo::getPhotoUrl).toList();
-        List<TourDateDTO> tourDateDTOS = tour.getAvailableDates().stream().map(d -> new TourDateDTO(d.getStartDate(), d.getEndDate())).toList();
+        TourDate tourDate = tour.getTourDates();
         return Result.success("success",
                 new TourDetailsDto
                         (
@@ -117,11 +146,15 @@ public class TourService {
                         tour.getDescription(),
                         tour.getPricePerPerson(),
                         tour.getDurationDays(),
-                        tour.isAvailableAllTheTime(),
-                        tour.getDestination(),
                         tour.getBannerImageUrl(),
+                        tour.getDestination(),
                         photos,
-                        tourDateDTOS
+                        tour.isHasSpecificDates(),
+                        tour.isHasSpecificDates()?
+                        new TourDateDTO(
+                                tourDate.getStartDate(),
+                                tourDate.getEndDate()
+                        ):null
                 )
         );
     }
@@ -154,7 +187,7 @@ public class TourService {
             tour = tourRepository.save(tour);
 
             List<String> photos = tour.getPhotos().stream().map(Photo::getPhotoUrl).toList();
-            List<TourDateDTO> tourDateDTOS = tour.getAvailableDates().stream().map(d -> new TourDateDTO(d.getStartDate(), d.getEndDate())).toList();
+            TourDate tourDate = tour.getTourDates();
 
             return Result.success("Banner added successfully",
                     new TourDetailsDto(
@@ -163,11 +196,16 @@ public class TourService {
                             tour.getDescription(),
                             tour.getPricePerPerson(),
                             tour.getDurationDays(),
-                            tour.isAvailableAllTheTime(),
-                            tour.getDestination(),
                             tour.getBannerImageUrl(),
+                            tour.getDestination(),
                             photos,
-                            tourDateDTOS
+                            tour.isHasSpecificDates(),
+                            tour.isHasSpecificDates()?
+                                    new TourDateDTO(
+                                            tourDate.getStartDate(),
+                                            tourDate.getEndDate()
+                                    )
+                                    : null
                     ));
         } catch (Exception e) {
 
@@ -238,7 +276,7 @@ public class TourService {
         }
         tour = tourRepository.save(tour);
         List<String> images = tour.getPhotos().stream().map( p -> p.getPhotoUrl()).toList();
-        List<TourDateDTO> dates = tour.getAvailableDates().stream().map(d -> new TourDateDTO(d.getStartDate(), d.getEndDate())).toList();
+        TourDate dates = tour.getTourDates();
         return Result.success("success",
                 new TourDetailsDto(
                         tour.getId(),
@@ -246,11 +284,16 @@ public class TourService {
                         tour.getDescription(),
                         tour.getPricePerPerson(),
                         tour.getDurationDays(),
-                        tour.isAvailableAllTheTime(),
-                        tour.getDestination(),
                         tour.getBannerImageUrl(),
+                        tour.getDestination(),
                         images,
-                        dates
+                        tour.isHasSpecificDates(),
+                        tour.isHasSpecificDates()?
+                                new TourDateDTO(
+                                        dates.getStartDate(),
+                                        dates.getEndDate()
+                                ):
+                                null
                 )
         );
     }

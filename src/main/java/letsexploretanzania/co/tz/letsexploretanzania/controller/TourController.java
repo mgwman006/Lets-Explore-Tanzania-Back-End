@@ -32,12 +32,12 @@ public class TourController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<TourCreatedDto>> addTour(
+    public ResponseEntity<ApiResponse<TourDetailsDto>> addTour(
             @Valid
             @RequestBody TourAddDto tourRequest
             )
     {
-        Result<TourCreatedDto> result = tourService.addTour(tourRequest);
+        Result<TourDetailsDto> result = tourService.addTour(tourRequest);
         if (result.isSuccess())
         {
             URI uri = URI.create("/api/v1/tour");
