@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import letsexploretanzania.co.tz.letsexploretanzania.models.entities.TourDate;
+import letsexploretanzania.co.tz.letsexploretanzania.models.responses.TourDateDTO;
 
 import java.math.BigDecimal;
 
@@ -22,11 +24,16 @@ public record TourAddDto(
 
         @Positive(message = "Duration must be a positive number")
         @NotNull(message = "Duration is required")
-        int duration,
-        @NotNull (message = "isAvailableAllTheTime is required")
-        Boolean isAvailableAllTheTime,
+        int durationDays,
 
         @NotBlank(message = "Destination is required")
-        String destination
+        String destination,
+
+        @NotNull (message = "isAvailableAllTheTime is required")
+        Boolean hasSpecificDates,
+
+        TourDateDTO tourDates
+
+
 ) {
 }

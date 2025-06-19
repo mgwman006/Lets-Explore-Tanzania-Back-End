@@ -3,6 +3,7 @@ package letsexploretanzania.co.tz.letsexploretanzania.models.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 public class TourDate {
@@ -11,20 +12,19 @@ public class TourDate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "tour_id")
     private Tour tour;
 
     public TourDate() {
     }
 
-    public TourDate(LocalDate startDate, LocalDate endDate, Tour tour) {
+    public TourDate(LocalDateTime startDate, LocalDateTime endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
-        this.tour = tour;
     }
 
     public Long getId() {
@@ -32,19 +32,19 @@ public class TourDate {
     }
 
 
-    public LocalDate getStartDate() {
+    public LocalDateTime getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDate startDate) {
+    public void setStartDate(LocalDateTime startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDate getEndDate() {
+    public LocalDateTime getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDate endDate) {
+    public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
     }
 
