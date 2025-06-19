@@ -47,12 +47,13 @@ jobs:
           sleep 5
           echo 'Starting new process...'
           cd /home/ubuntu/letsexploretanzania/target || exit 1
+          
+          export DB_URL="${{ secrets.DB_URL }}"
+          export DB_USERNAME="${{ secrets.DB_USERNAME }}"
+          export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+          
           nohup java -jar letsexploretanzania-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
           echo 'Process started'
           EOF
           rm private_key
-        env:
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
