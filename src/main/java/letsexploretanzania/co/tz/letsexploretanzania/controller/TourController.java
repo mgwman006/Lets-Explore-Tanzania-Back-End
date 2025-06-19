@@ -20,9 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.net.URI;
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/api/v1/tour")
-@CrossOrigin(origins = "*")
 public class TourController {
 
     private final TourService tourService;
