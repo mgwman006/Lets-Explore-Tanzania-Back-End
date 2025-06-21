@@ -8,6 +8,7 @@ import letsexploretanzania.co.tz.letsexploretanzania.models.entities.TourDate;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.TourDateDTO;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record TourAddDto(
         @NotBlank(message = "Title is required")
@@ -15,19 +16,15 @@ public record TourAddDto(
         String title,
 
         @NotBlank(message = "Description is required")
-        @Column(length = 2000)
-        String description,
-
-        @NotNull(message = "pricePerPerson is required")
-        @Positive(message = "Price must be a positive number")
-        BigDecimal pricePerPerson,
+        @Column(length = 500)
+        String overView,
 
         @Positive(message = "Duration must be a positive number")
         @NotNull(message = "Duration is required")
         int durationDays,
 
-        @NotBlank(message = "Destination is required")
-        String destination,
+        @NotNull(message = "Destinations is required")
+        List<String> destinations,
 
         @NotNull (message = "isAvailableAllTheTime is required")
         Boolean hasSpecificDates,

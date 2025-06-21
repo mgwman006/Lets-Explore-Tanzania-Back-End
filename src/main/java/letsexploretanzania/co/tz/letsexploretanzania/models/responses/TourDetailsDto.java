@@ -8,13 +8,12 @@ import java.util.List;
 public record TourDetailsDto(
         Long id,
         String title,
-        String description,
-        BigDecimal pricePerPerson,
+        String overView,
         int durationDays,
         String bannerImageUrl,
-        String destination,
-        List<String> photos,
         boolean hasSpecificDates,
-        TourDateDTO tourDates
+        TourDateDTO tourDates,
+        List<String> destinations,
+        List<TourPriceDTO> tourPrice
 ) {
 }

@@ -1,16 +1,17 @@
 package letsexploretanzania.co.tz.letsexploretanzania.models.responses;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record TourDetailsListItemDto(
         Long id,
         String title,
-        String description,
-        BigDecimal pricePerPerson,
+        String overView,
         int durationDays,
         String bannerImageUrl,
-        String destination,
         boolean hasSpecificDates,
-        TourDateDTO tourDates
+        TourDateDTO tourDates,
+        List<String> destinations,
+        List<TourPriceDTO> tourPrice
 ) {
 }

@@ -12,6 +12,7 @@ jobs:
       DB_URL: ${{ secrets.DB_URL }}
       DB_USERNAME: ${{ secrets.DB_USERNAME }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      SERVER_PORT: ${{ secrets.SERVER_PORT }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3

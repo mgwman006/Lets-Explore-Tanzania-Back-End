@@ -4,10 +4,12 @@ import jakarta.validation.Valid;
 import letsexploretanzania.co.tz.letsexploretanzania.common.dtos.DeleteResponseDto;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.ApiResponse;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
+import letsexploretanzania.co.tz.letsexploretanzania.models.requests.AddTourPriceDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.TourAddDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.TourCreatedDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.TourDetailsDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.TourDetailsListItemDto;
+import letsexploretanzania.co.tz.letsexploretanzania.models.responses.TourPriceDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.service.TourService;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
@@ -32,12 +34,12 @@ public class TourController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<TourDetailsDto>> addTour(
+    public ResponseEntity<ApiResponse<TourCreatedDto>> addTour(
             @Valid
             @RequestBody TourAddDto tourRequest
             )
     {
-        Result<TourDetailsDto> result = tourService.addTour(tourRequest);
+        Result<TourCreatedDto> result = tourService.addTour(tourRequest);
         if (result.isSuccess())
         {
             URI uri = URI.create("/api/v1/tour");
@@ -99,13 +101,13 @@ public class TourController {
     }
 
     @PostMapping(path = "/{tourId}/banner", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<TourDetailsDto>> addBannerImage(
+    public ResponseEntity<ApiResponse<String>> addBannerImage(
             @PathVariable
             Long tourId,
             @RequestParam("image")MultipartFile image
     )
     {
-        Result<TourDetailsDto> result = tourService.addBannerImage(tourId,image);
+        Result<String> result = tourService.addBannerImage(tourId,image);
         if (result.isSuccess())
         {
             return ResponseEntity
@@ -122,13 +124,37 @@ public class TourController {
 
     }
     @PostMapping(path = "/{tourId}/photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<TourDetailsDto>> addPhotos(
+    public ResponseEntity<ApiResponse<List<String>>> addPhotos(
             @PathVariable
             Long tourId,
             @RequestParam("photos")List<MultipartFile> photos
     )
     {
-        Result<TourDetailsDto> result = tourService.addPhotos(tourId,photos);
+        Result<List<String>> result = tourService.addPhotos(tourId,photos);
+        if (result.isSuccess())
+        {
+            return ResponseEntity
+                    .ok(
+                            ApiResponse.success(
+                                    result.getMessage(),
+                                    result.getData(),
+                                    HttpStatus.OK.value()
+                            )
+                    );
+        }
+
+        return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
+
+    }
+
+    @PostMapping(path = "/{tourId}/prices")
+    public ResponseEntity<ApiResponse<List<TourPriceDTO>>> addTourPrices(
+            @PathVariable
+            Long tourId,
+            @RequestBody List<AddTourPriceDTO> tourPriceDTOS
+    )
+    {
+        Result<List<TourPriceDTO>> result = tourService.addTourPrice(tourId,tourPriceDTOS);
         if (result.isSuccess())
         {
             return ResponseEntity
