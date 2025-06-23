@@ -2,14 +2,19 @@ package letsexploretanzania.co.tz.letsexploretanzania.models.entities;
 
 
 import jakarta.persistence.*;
+import letsexploretanzania.co.tz.letsexploretanzania.common.enums.TourType;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 
+
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "tour_type")
 @Entity
-public class Tour {
+@Table(name = "tours")
+public abstract class Tour {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,9 +23,6 @@ public class Tour {
     private String overView;
     private int durationDays;
     private String bannerImageUrl;
-    private boolean hasSpecificDates;
-    @OneToOne(mappedBy = "tour", cascade = CascadeType.ALL)
-    private TourDate tourDates;
     @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
     private List<TourDestination> destinations = new ArrayList<>();
     @OneToMany(
@@ -31,11 +33,12 @@ public class Tour {
     )
     private List<Photo> photos = new ArrayList<>(); // Additional images
 
-    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
-    List<TourPrice> tourPrices = new ArrayList<>();
+    @OneToOne(mappedBy = "tour", cascade = CascadeType.ALL)
+    TourGuide tourGuide;
 
     // @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
     // private List<Booking> bookings;
+
 
 
     public Tour() {
@@ -44,14 +47,11 @@ public class Tour {
     public Tour(
             String title,
             String overView,
-            int durationDays,
-            boolean hasSpecificDates) {
+            int durationDays) {
         this.title = title;
         this.overView = overView;
         this.durationDays = durationDays;
-        this.hasSpecificDates = hasSpecificDates;
     }
-
 
     public Long getId() {
         return id;
@@ -100,21 +100,7 @@ public class Tour {
         this.photos.add(photo);
     }
 
-    public TourDate getTourDates() {
-        return tourDates;
-    }
 
-    public void setTourDates(TourDate tourDates) {
-        this.tourDates = tourDates;
-    }
-
-    public boolean isHasSpecificDates() {
-        return hasSpecificDates;
-    }
-
-    public void setHasSpecificDates(boolean hasSpecificDates) {
-        this.hasSpecificDates = hasSpecificDates;
-    }
 
     public List<TourDestination> getDestinations() {
         return destinations;
@@ -129,17 +115,19 @@ public class Tour {
         this.destinations.add(tourDestination);
     }
 
-    public List<TourPrice> getTourPrices() {
-        return tourPrices;
+    public TourGuide getGuide() {
+        return tourGuide;
     }
 
-    public void setTourPrices(List<TourPrice> tourPrices) {
-        this.tourPrices = tourPrices;
+    public void setGuide(TourGuide guide) {
+        this.tourGuide = guide;
     }
 
-    public void addTourPrice(TourPrice tourPrice)
-    {
-        this.tourPrices.add(tourPrice);
+    public void setPhotos(List<Photo> photos) {
+        this.photos = photos;
+    }
+    public void addPhotos(Photo photo) {
+        this.photos.add(photo);
     }
 }
 

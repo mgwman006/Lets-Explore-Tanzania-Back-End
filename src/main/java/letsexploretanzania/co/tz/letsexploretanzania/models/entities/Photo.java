@@ -3,6 +3,7 @@ package letsexploretanzania.co.tz.letsexploretanzania.models.entities;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "photos")
 public class Photo {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)
@@ -11,6 +12,9 @@ public class Photo {
     @ManyToOne
     @JoinColumn(name = "tour_id")
     private Tour tour;
+    @ManyToOne
+    @JoinColumn(name = "tour_activity_id")
+    private TourActivity tourActivity;
 
     public Photo() {
     }
@@ -37,6 +41,14 @@ public class Photo {
 
     public void setTour(Tour tour) {
         this.tour = tour;
+    }
+
+    public TourActivity getTourActivity() {
+        return tourActivity;
+    }
+
+    public void setTourActivity(TourActivity tourActivity) {
+        this.tourActivity = tourActivity;
     }
 
     @Override

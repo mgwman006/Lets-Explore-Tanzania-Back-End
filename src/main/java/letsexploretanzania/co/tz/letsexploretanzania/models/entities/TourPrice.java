@@ -6,7 +6,7 @@ import letsexploretanzania.co.tz.letsexploretanzania.common.enums.CurrencyEnum;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "tourprices")
+@Table(name = "tour_prices")
 public class TourPrice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

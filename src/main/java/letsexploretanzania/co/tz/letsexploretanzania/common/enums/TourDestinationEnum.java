@@ -10,7 +10,7 @@ public enum TourDestinationEnum {
     SELOUS(7,"Selous"),
     NYERERE(8,"Nyerere"),
     SAADANI(9,"Saadani"),
-    KILIMANYARO(10,"Kilimanjaro");
+    KILIMANJARO(10,"Kilimanjaro");
 
     private int code;
     private String name;

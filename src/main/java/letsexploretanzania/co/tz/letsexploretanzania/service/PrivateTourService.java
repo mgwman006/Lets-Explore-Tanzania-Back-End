@@ -1,13 +1,20 @@
 package letsexploretanzania.co.tz.letsexploretanzania.service;
 
+import jakarta.validation.Valid;
 import letsexploretanzania.co.tz.letsexploretanzania.common.dtos.DeleteResponseDto;
+import letsexploretanzania.co.tz.letsexploretanzania.common.dtos.MeetingPoint;
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.CurrencyEnum;
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.TourDestinationEnum;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.*;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.AddTourPriceDTO;
-import letsexploretanzania.co.tz.letsexploretanzania.models.requests.TourAddDto;
+import letsexploretanzania.co.tz.letsexploretanzania.models.requests.TourActivityAddDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.requests.privatetour.PrivateTourAddDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.*;
+import letsexploretanzania.co.tz.letsexploretanzania.models.responses.privatetour.PrivateTourCreatedDto;
+import letsexploretanzania.co.tz.letsexploretanzania.models.responses.privatetour.PrivateTourDetailsDto;
+import letsexploretanzania.co.tz.letsexploretanzania.models.responses.privatetour.PrivateTourDetailsListItemDto;
+import letsexploretanzania.co.tz.letsexploretanzania.repository.TourGuideRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.jpa.JpaSystemException;
@@ -24,37 +31,28 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class TourService {
+public class PrivateTourService {
 
     private final TourRepository tourRepository;
+    private final TourGuideRepository tourGuideRepository;
 
-    public TourService(TourRepository tourRepository) {
+    public PrivateTourService(TourRepository tourRepository, TourGuideRepository tourGuideRepository) {
         this.tourRepository = tourRepository;
+        this.tourGuideRepository = tourGuideRepository;
     }
 
-    public Result<TourCreatedDto> addTour(TourAddDto tourRequest)
-    {
-        Tour tour = new Tour(
+    public Result<PrivateTourCreatedDto> addTour(PrivateTourAddDto tourRequest, MultipartFile bannerImage) throws IOException {
+        PrivateTour tour = new PrivateTour(
                 tourRequest.title(),
                 tourRequest.overView(),
-                tourRequest.durationDays(),
-                tourRequest.hasSpecificDates()
+                tourRequest.durationDays()
         );
 
-        //Add Tour Dates
-        if (tour.isHasSpecificDates())
-        {
-            TourDate tourDate = new TourDate(
-                    tourRequest.tourDates().startDate(),
-                    tourRequest.tourDates().endDate()
-            );
-            tourDate.setTour(tour);
-            tour.setTourDates(tourDate);
-        }
 
         //Add Destinations
         for(String destination : tourRequest.destinations())
@@ -66,6 +64,8 @@ public class TourService {
             tour.addDestination(tourDestination);
         }
 
+        String key = saveImageToS3(bannerImage,"tourimages/"+bannerImage.getOriginalFilename());
+        tour.setBannerImageUrl(key);
 
         try {
             tour = tourRepository.save(tour);
@@ -73,19 +73,13 @@ public class TourService {
             return Result.failure(e.getMessage());
         }
 
-        TourDate tourDate = tour.getTourDates();
         return Result.success("tour successfully created",
-                new TourCreatedDto(
+                new PrivateTourCreatedDto(
                 tour.getId(),
                 tour.getTitle(),
                 tour.getOverView(),
                 tour.getDurationDays(),
-                tour.isHasSpecificDates(),
-                tour.isHasSpecificDates() ?
-                        new TourDateDTO(
-                        tourDate.getStartDate(),
-                        tourDate.getEndDate()
-                        ): null,
+                tour.getBannerImageUrl(),
                 tour.getDestinations()
                         .stream()
                         .map(d-> d.getName().getName()).toList()
@@ -93,7 +87,7 @@ public class TourService {
         );
     }
 
-    public Result<List<TourDetailsListItemDto>> getAllTours()
+    public Result<List<PrivateTourDetailsListItemDto>> getAllTours()
     {
         List<Tour> tours;
         try {
@@ -102,44 +96,45 @@ public class TourService {
             return Result.failure(e.getMessage());
         }
 
+        List<PrivateTour> privateTours = tours
+                .stream()
+                .filter(tour -> tour instanceof PrivateTour)
+                .map(tour -> (PrivateTour) tour)
+                .toList();
         return Result
                 .success(
                         "data fetch is successfully",
-                        tours.stream()
+                        privateTours.stream()
                                 .map(
-                                        t -> new TourDetailsListItemDto(
+                                        t -> new PrivateTourDetailsListItemDto(
                                                 t.getId(),
                                                 t.getTitle(),
                                                 t.getOverView(),
                                                 t.getDurationDays(),
                                                 t.getBannerImageUrl(),
-                                                t.isHasSpecificDates(),
-                                                t.isHasSpecificDates() ?
-                                                        new TourDateDTO(
-                                                                t.getTourDates().getStartDate(),
-                                                                t.getTourDates().getEndDate()
-                                                        ):null,
                                                 t.getDestinations()
                                                         .stream()
                                                         .map(d->d.getName().getName()).toList(),
                                                 t.getTourPrices()
                                                         .stream()
-                                                        .map(p-> new TourPriceDTO(
-                                                                p.getId(),
-                                                                p.getQuantity(),
-                                                                p.getPricePerPerson(),
-                                                                new CurrencyDTO(
-                                                                        p.getCurrency().getCode(),
-                                                                        p.getCurrency().getSymbol()
+                                                        .map(
+                                                        p-> new TourPriceDTO
+                                                                (
+                                                                    p.getId(),
+                                                                    p.getQuantity(), p.getPricePerPerson(),
+                                                                    new CurrencyDTO(
+                                                                            p.getCurrency().getCode(),
+                                                                            p.getCurrency().getSymbol()
+                                                                    )
                                                                 )
-                                                        )).toList()
+                                                        ).toList()
                                         )
                                 ).toList()
 
                 );
     }
 
-    public Result<TourDetailsDto> getTourById(Long tourId) {
+    public Result<PrivateTourDetailsDto> getTourById(Long tourId) {
 
         Optional<Tour> optionalTour = tourRepository.findById(tourId);
 
@@ -148,38 +143,34 @@ public class TourService {
             return  Result.failure("Tour with id " + tourId + " not exist");
         }
 
-        Tour tour = optionalTour.get();
-        List<String> photos = tour.getPhotos().stream().map(Photo::getPhotoUrl).toList();
-        TourDate tourDate = tour.getTourDates();
-        return Result.success("success",
-                new TourDetailsDto
-                        (
-                        tour.getId(),
-                        tour.getTitle(),
-                        tour.getOverView(),
-                        tour.getDurationDays(),
-                        tour.getBannerImageUrl(),
-                        tour.isHasSpecificDates(),
-                        tour.isHasSpecificDates()?
-                        new TourDateDTO(
-                                tourDate.getStartDate(),
-                                tourDate.getEndDate()
-                        ):null,
-                        tour.getDestinations()
-                                .stream()
-                                .map(d-> d.getName().getName()).toList(),
-                        tour.getTourPrices()
-                                .stream()
-                                .map( p ->
-                                        new TourPriceDTO(
-                                                p.getId(),
-                                                p.getQuantity(),
-                                                p.getPricePerPerson(),
-                                                new CurrencyDTO(
-                                                        p.getCurrency().getCode(),
-                                                        p.getCurrency().getSymbol()
-                                                )
-                                        )).toList()
+        PrivateTour privateTour = (PrivateTour) optionalTour.get();
+
+        List<String> photos = privateTour.getPhotos().stream().map(Photo::getPhotoUrl).toList();
+        return Result.success(
+                "success",
+                new PrivateTourDetailsDto
+                (
+                    privateTour.getId(),
+                    privateTour.getTitle(),
+                    privateTour.getOverView(),
+                    privateTour.getDurationDays(),
+                    privateTour.getBannerImageUrl(),
+                    privateTour.getDestinations()
+                    .stream()
+                    .map(d-> d.getName().getName()).toList(),
+                    privateTour.getTourPrices()
+                    .stream()
+                    .map(p ->
+                            new TourPriceDTO(
+                                    p.getId(),
+                                    p.getQuantity(),
+                                    p.getPricePerPerson(),
+                                    new CurrencyDTO(
+                                            p.getCurrency().getCode(),
+                                            p.getCurrency().getSymbol()
+                                    )
+                            )).toList(),
+                    photos
                 )
         );
     }
@@ -293,7 +284,7 @@ public class TourService {
         if (optionalTour.isEmpty())
             return Result.failure("Tour with id "+ tourId+" do not exist");
 
-        Tour tour = optionalTour.get();
+        PrivateTour tour = (PrivateTour) optionalTour.get();
         for (AddTourPriceDTO tourPriceDTO : tourPricesRequest)
         {
             TourPrice tourPrice = new TourPrice(
@@ -334,5 +325,130 @@ public class TourService {
                         ).toList()
         );
 
+    }
+
+    public Result<TourGuideDTO> addTourGuide(Long tourId, MeetingPoint pickingUpInformation) {
+
+        Optional<Tour> optionalTour = tourRepository.findById(tourId);
+        if (optionalTour.isEmpty())
+            return Result.failure("Tour with id "+tourId+" do not exist");
+
+        Tour tour = optionalTour.get();
+
+        TourGuide tourGuide = new TourGuide(pickingUpInformation);
+        tourGuide.setTour(tour);
+        tour.setGuide(tourGuide);
+
+        try
+        {
+            tour = tourRepository.save(tour);
+        } catch (Exception e) {
+            return Result.failure(e.getMessage());
+        }
+        tourGuide = tour.getGuide();
+
+        return Result.success(
+                "success",
+                new TourGuideDTO(
+                        tourGuide.getId(),
+                        tourGuide.getPickUpInformation(),
+                        tourGuide.getEndOfTourInformation(),
+                        new ArrayList<TourActivityDetailsDTO>()
+                )
+        );
+    }
+
+
+    public Result<List<TourActivityDetailsDTO>> addTourActivity(
+            Long tourGuideId,
+            TourActivityAddDTO tourActivityDTO,
+            List<MultipartFile> photos
+    ) {
+
+        Optional<TourGuide> optionalTourGuide = tourGuideRepository.findById(tourGuideId);
+        if (optionalTourGuide.isEmpty())
+            return Result.failure("TourGuide with id "+tourGuideId+" not exist");
+        TourGuide tourGuide = optionalTourGuide.get();
+
+        TourActivity tourActivity = new TourActivity(
+                tourActivityDTO.dayNumber(),
+                tourActivityDTO.title(),
+                tourActivityDTO.description(),
+                tourActivityDTO.location(),
+                tourActivityDTO.startTime(),
+                tourActivityDTO.endTime()
+        );
+
+        for (MultipartFile photo : photos)
+        {
+            try {
+                String imageUrl = saveImageToS3(photo,"tourimages/"+photo.getOriginalFilename());
+                Photo newPhoto = new Photo(imageUrl);
+                newPhoto.setTourActivity(tourActivity);
+                tourActivity.addPhoto(newPhoto);
+            } catch (IOException e) {
+//                throw new RuntimeException(e);
+            }
+        }
+
+        tourActivity.setTourGuide(tourGuide);
+        tourGuide.addTourActivity(tourActivity);
+
+        try
+        {
+            tourGuide = tourGuideRepository.save(tourGuide);
+        } catch (Exception e) {
+            return Result.failure("Save Failed "+e.getMessage());
+        }
+
+
+        List<TourActivity> tourActivities = tourGuide.getTourActivities();
+
+        return Result.success(
+                "success",
+                tourActivities
+                        .stream()
+                        .map( a ->
+                                new TourActivityDetailsDTO(
+                                        a.getId(),
+                                        a.getDayNumber(),
+                                        a.getTitle(),
+                                        a.getDescription(),
+                                        a.getLocation(),
+                                        a.getStartTime(),
+                                        a.getEndTime(),
+                                        a.getPhotos()
+                                                .stream()
+                                                .map(p -> p.getPhotoUrl())
+                                                .toList()
+                                )
+                        ).toList()
+        );
+
+    }
+
+    public Result<MeetingPoint> addEndOfTourInformation(Long tourGuideId, MeetingPoint endOfTourInformation)
+    {
+        Optional<TourGuide> optionalTourGuide = tourGuideRepository.findById(tourGuideId);
+        if (optionalTourGuide.isEmpty())
+            return Result.failure("Tour with id "+tourGuideId+" do not exist");
+
+        TourGuide tourGuide = optionalTourGuide.get();
+
+        tourGuide.setEndOfTourInformation(endOfTourInformation);
+
+
+        try
+        {
+            tourGuide = tourGuideRepository.save(tourGuide);
+        } catch (Exception e) {
+            return Result.failure(e.getMessage());
+        }
+        MeetingPoint newEndOfTourPoint = tourGuide.getEndOfTourInformation();
+
+        return Result.success(
+                "success",
+                endOfTourInformation
+        );
     }
 }

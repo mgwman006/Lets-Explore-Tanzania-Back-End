@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.TourDestinationEnum;
 
 @Entity
-@Table(name = "destinations")
+@Table(name = "tour_destinations")
 public class TourDestination {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)
@@ -16,6 +16,9 @@ public class TourDestination {
     @ManyToOne
     @JoinColumn(name = "tour_id")
     private Tour tour;
+
+    public TourDestination() {
+    }
 
     public TourDestination(TourDestinationEnum name) {
         this.name = name;
