@@ -2,24 +2,29 @@ package letsexploretanzania.co.tz.letsexploretanzania.models.entities;
 
 
 import jakarta.persistence.*;
+import letsexploretanzania.co.tz.letsexploretanzania.common.enums.TourType;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 
+
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "tour_type")
 @Entity
-public class Tour {
+@Table(name = "tours")
+public abstract class Tour {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
-    private String description;
-    private BigDecimal pricePerPerson;
+    private String overView;
     private int durationDays;
     private String bannerImageUrl;
-    private String destination;
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
+    private List<TourDestination> destinations = new ArrayList<>();
     @OneToMany(
             mappedBy = "tour",
             cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE},
@@ -27,13 +32,13 @@ public class Tour {
             fetch = FetchType.LAZY
     )
     private List<Photo> photos = new ArrayList<>(); // Additional images
-    private boolean hasSpecificDates;
-    @OneToOne(mappedBy = "tour", cascade = CascadeType.ALL)
-    private TourDate tourDates;
 
+    @OneToOne(mappedBy = "tour", cascade = CascadeType.ALL)
+    TourGuide tourGuide;
 
     // @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
     // private List<Booking> bookings;
+
 
 
     public Tour() {
@@ -41,19 +46,12 @@ public class Tour {
 
     public Tour(
             String title,
-            String description,
-            BigDecimal pricePerPerson,
-            int durationDays,
-            String destination,
-            boolean hasSpecificDates) {
+            String overView,
+            int durationDays) {
         this.title = title;
-        this.description = description;
-        this.pricePerPerson = pricePerPerson;
+        this.overView = overView;
         this.durationDays = durationDays;
-        this.hasSpecificDates = hasSpecificDates;
-        this.destination = destination;
     }
-
 
     public Long getId() {
         return id;
@@ -67,20 +65,12 @@ public class Tour {
         this.title = title;
     }
 
-    public String getDescription() {
-        return description;
+    public String getOverView() {
+        return overView;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public BigDecimal getPricePerPerson() {
-        return pricePerPerson;
-    }
-
-    public void setPricePerPerson(BigDecimal pricePerPerson) {
-        this.pricePerPerson = pricePerPerson;
+    public void setOverView(String overView) {
+        this.overView = overView;
     }
 
     public int getDurationDays() {
@@ -111,28 +101,33 @@ public class Tour {
     }
 
 
-    public String getDestination() {
-        return destination;
+
+    public List<TourDestination> getDestinations() {
+        return destinations;
     }
 
-    public void setDestination(String destination) {
-        this.destination = destination;
+    public void setDestinations(List<TourDestination> destinations) {
+        this.destinations = destinations;
     }
 
-    public TourDate getTourDates() {
-        return tourDates;
+    public void addDestination(TourDestination tourDestination)
+    {
+        this.destinations.add(tourDestination);
     }
 
-    public void setTourDates(TourDate tourDates) {
-        this.tourDates = tourDates;
+    public TourGuide getGuide() {
+        return tourGuide;
     }
 
-    public boolean isHasSpecificDates() {
-        return hasSpecificDates;
+    public void setGuide(TourGuide guide) {
+        this.tourGuide = guide;
     }
 
-    public void setHasSpecificDates(boolean hasSpecificDates) {
-        this.hasSpecificDates = hasSpecificDates;
+    public void setPhotos(List<Photo> photos) {
+        this.photos = photos;
+    }
+    public void addPhotos(Photo photo) {
+        this.photos.add(photo);
     }
 }
 

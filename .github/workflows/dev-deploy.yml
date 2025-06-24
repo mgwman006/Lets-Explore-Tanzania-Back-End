@@ -3,16 +3,16 @@ name: Deploy letsexploretanzania
 on:
   push:
     branches:
-      - production
+      - develop
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      DB_URL: ${{ secrets.DB_URL }}
-      DB_USERNAME: ${{ secrets.DB_USERNAME }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      SERVER_PORT: ${{ secrets.SERVER_PORT }}
+      DB_URL: ${{ secrets.DB_URL_DEV }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME_DEV }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD_DEV }}
+      SERVER_PORT: ${{ secrets.SERVER_PORT_DEV }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -32,27 +32,27 @@ jobs:
       - name: Deploy JAR to EC2
         uses: appleboy/scp-action@v1
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          host: ${{ secrets.EC2_HOST_DEV }}
+          username: ${{ secrets.EC2_USERNAME_DEV }}
+          key: ${{ secrets.EC2_PRIVATE_KEY_DEV }}
           source: 'target/letsexploretanzania-0.0.1-SNAPSHOT.jar'
           target: '/home/ubuntu/letsexploretanzania/'
 
       - name: Restart Spring Boot app on EC2
         run: |
-          echo "${{ secrets.EC2_PRIVATE_KEY }}" > private_key
+          echo "${{ secrets.EC2_PRIVATE_KEY_DEV }}" > private_key
           chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.EC2_USERNAME_DEV }}@${{ secrets.EC2_HOST_DEV }} << 'EOF'
           echo 'Stopping existing process...'
           pkill -TERM -f letsexploretanzania || true
           sleep 5
           echo 'Starting new process...'
           cd /home/ubuntu/letsexploretanzania/target || exit 1
           
-          export DB_URL="${{ secrets.DB_URL }}"
-          export DB_USERNAME="${{ secrets.DB_USERNAME }}"
-          export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
-          export SERVER_PORT="${{ secrets.SERVER_PORT }}"
+          export DB_URL="${{ secrets.DB_URL_DEV }}"
+          export DB_USERNAME="${{ secrets.DB_USERNAME_DEV }}"
+          export DB_PASSWORD="${{ secrets.DB_PASSWORD_DEV }}"
+          export SERVER_PORT="${{ secrets.SERVER_PORT_DEV }}"
           
           nohup java -jar letsexploretanzania-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
           echo 'Process started'
