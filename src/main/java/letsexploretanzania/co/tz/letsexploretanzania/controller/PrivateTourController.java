@@ -256,4 +256,26 @@ public class PrivateTourController {
 
     }
 
+    @GetMapping(path = "/{tourId}/guide")
+    public ResponseEntity<ApiResponse<TourGuideDTO>> getTourGuide(
+            @PathVariable
+            Long tourId
+    )
+    {
+        Result<TourGuideDTO> result = privateTourService.getTourGuide(tourId);
+        if (result.isSuccess())
+        {
+            return ResponseEntity
+                    .ok(
+                            ApiResponse.success(
+                                    result.getMessage(),
+                                    result.getData(),
+                                    HttpStatus.OK.value()
+                            )
+                    );
+        }
+
+        return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
+
+    }
 }

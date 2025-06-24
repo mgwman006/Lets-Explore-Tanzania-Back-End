@@ -64,7 +64,18 @@ public class PrivateTourService {
             tour.addDestination(tourDestination);
         }
 
-        String key = saveImageToS3(bannerImage,"tourimages/"+bannerImage.getOriginalFilename());
+        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+        String formattedNow = String.valueOf(now.getYear())+
+                String.valueOf(now.getMonthValue())+
+                String.valueOf(now.getDayOfMonth())+
+                String.valueOf(now.getHour())+
+                String.valueOf(now.getMinute())+
+                String.valueOf(now.getSecond())+
+                String.valueOf(now.getNano());
+
+        String objectName = formattedNow+"banners/"+bannerImage.getOriginalFilename();
+
+        String key = saveImageToS3(bannerImage,objectName);
         tour.setBannerImageUrl(key);
 
         try {
@@ -198,7 +209,18 @@ public class PrivateTourService {
 
         try {
 
-            String key = saveImageToS3(image,"tourimages/"+image.getOriginalFilename());
+            LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+            String formattedNow = String.valueOf(now.getYear())+
+                    String.valueOf(now.getMonthValue())+
+                    String.valueOf(now.getDayOfMonth())+
+                    String.valueOf(now.getHour())+
+                    String.valueOf(now.getMinute())+
+                    String.valueOf(now.getSecond())+
+                    String.valueOf(now.getNano());
+
+            String objectName = formattedNow+"banners/"+image.getOriginalFilename();
+
+            String key = saveImageToS3(image,objectName);
             tour.setBannerImageUrl(key);
             tour = tourRepository.save(tour);
 
@@ -212,21 +234,10 @@ public class PrivateTourService {
 
     public String saveImageToS3(MultipartFile image,String objectName) throws IOException {
 
-        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
 
-
-        String formattedNow = String.valueOf(now.getYear())+
-                String.valueOf(now.getMonthValue())+
-                String.valueOf(now.getDayOfMonth())+
-                String.valueOf(now.getHour())+
-                String.valueOf(now.getMinute())+
-                String.valueOf(now.getSecond())+
-                String.valueOf(now.getNano());
-
-        System.out.println("yee");
-        File tempFile = File.createTempFile("upload-", formattedNow+image.getOriginalFilename());
+        File tempFile = File.createTempFile("upload-", image.getOriginalFilename());
         image.transferTo(tempFile);
-        System.out.println("yee 2");
+
 
         Path path = tempFile.toPath();
         String bucketName = "letsexploretanzania";
@@ -262,7 +273,17 @@ public class PrivateTourService {
         for (MultipartFile photo : photos)
         {
             try {
-                String imageUrl = saveImageToS3(photo,"tourimages/"+photo.getOriginalFilename());
+                LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+                String formattedNow = String.valueOf(now.getYear())+
+                        String.valueOf(now.getMonthValue())+
+                        String.valueOf(now.getDayOfMonth())+
+                        String.valueOf(now.getHour())+
+                        String.valueOf(now.getMinute())+
+                        String.valueOf(now.getSecond())+
+                        String.valueOf(now.getNano());
+
+                String objectName = formattedNow+"tourImages/"+photo.getOriginalFilename();
+                String imageUrl = saveImageToS3(photo,objectName);
                 Photo newPhoto = new Photo(imageUrl);
                 newPhoto.setTour(tour);
                 tour.addSinglePhoto(newPhoto);
@@ -382,7 +403,19 @@ public class PrivateTourService {
         for (MultipartFile photo : photos)
         {
             try {
-                String imageUrl = saveImageToS3(photo,"tourimages/"+photo.getOriginalFilename());
+
+                LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+                String formattedNow = String.valueOf(now.getYear())+
+                        String.valueOf(now.getMonthValue())+
+                        String.valueOf(now.getDayOfMonth())+
+                        String.valueOf(now.getHour())+
+                        String.valueOf(now.getMinute())+
+                        String.valueOf(now.getSecond())+
+                        String.valueOf(now.getNano());
+
+                String objectName = formattedNow+"activityImages/"+photo.getOriginalFilename();
+
+                String imageUrl = saveImageToS3(photo,objectName);
                 Photo newPhoto = new Photo(imageUrl);
                 newPhoto.setTourActivity(tourActivity);
                 tourActivity.addPhoto(newPhoto);
@@ -449,6 +482,43 @@ public class PrivateTourService {
         return Result.success(
                 "success",
                 endOfTourInformation
+        );
+    }
+
+    public Result<TourGuideDTO> getTourGuide(Long tourId) {
+
+        Optional<Tour> optionalTour = tourRepository.findById(tourId);
+        if (optionalTour.isEmpty())
+            return Result.failure("Tour with id "+tourId+" do not exist");
+
+        TourGuide tourGuide = optionalTour.get().getGuide();
+        List<TourActivity> tourActivities = tourGuide.getTourActivities();
+        return Result.success(
+                "success",
+                new TourGuideDTO(
+                        tourGuide.getId(),
+                        tourGuide.getPickUpInformation(),
+                        tourGuide.getEndOfTourInformation(),
+                        tourActivities
+                                .stream()
+                                .map(
+                                        a ->
+                                        new TourActivityDetailsDTO(
+                                                a.getId(),
+                                                a.getDayNumber(),
+                                                a.getTitle(),
+                                                a.getDescription(),
+                                                a.getLocation(),
+                                                a.getStartTime(),
+                                                a.getEndTime(),
+                                                a.getPhotos()
+                                                        .stream()
+                                                        .map(p -> p.getPhotoUrl()).toList()
+                                        )
+                                ).toList()
+
+
+                )
         );
     }
 }
