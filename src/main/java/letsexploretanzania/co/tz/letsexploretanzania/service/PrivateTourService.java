@@ -1,5 +1,6 @@
 package letsexploretanzania.co.tz.letsexploretanzania.service;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import letsexploretanzania.co.tz.letsexploretanzania.common.dtos.DeleteResponseDto;
 import letsexploretanzania.co.tz.letsexploretanzania.common.dtos.MeetingPoint;
@@ -15,6 +16,7 @@ import letsexploretanzania.co.tz.letsexploretanzania.models.responses.*;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.privatetour.PrivateTourCreatedDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.privatetour.PrivateTourDetailsDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.privatetour.PrivateTourDetailsListItemDto;
+import letsexploretanzania.co.tz.letsexploretanzania.repository.TourDestinationRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourGuideRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -38,13 +40,18 @@ public class PrivateTourService {
 
     private final TourRepository tourRepository;
     private final AWSService awsService;
+    private final TourDestinationRepository tourDestinationRepository;
 
     public PrivateTourService(
             TourRepository tourRepository,
-            AWSService awsService) {
+            AWSService awsService,
+            TourDestinationRepository tourDestinationRepository)
+    {
         this.tourRepository = tourRepository;
         this.awsService = awsService;
+        this.tourDestinationRepository = tourDestinationRepository;
     }
+
 
     public Result<PrivateTourCreatedDto> addTour(PrivateTourAddDto tourRequest, MultipartFile bannerImage) throws IOException {
         PrivateTour tour = new PrivateTour(
@@ -58,14 +65,18 @@ public class PrivateTourService {
         tourGuide.setTour(tour);
         tour.setGuide(tourGuide);
 
+
         //Add Destinations
         for(String destination : tourRequest.destinations())
         {
-            TourDestination tourDestination = new TourDestination(
-                TourDestinationEnum.valueOf(destination.toUpperCase())
-            );
-            tourDestination.setTour(tour);
-            tour.addDestination(tourDestination);
+            TourDestinationEnum tourDestinationEnum = TourDestinationEnum.valueOf(destination.toUpperCase());
+            Optional<TourDestination> optionalTourDestination = tourDestinationRepository.findByName(tourDestinationEnum);
+
+            if (optionalTourDestination.isPresent())
+            {
+                tour.addDestination(optionalTourDestination.get());
+            }
+
         }
 
         //Add Banner Image
@@ -360,6 +371,7 @@ public class PrivateTourService {
         );
     }
 
+    @Transactional
     public Result<PrivateTourCreatedDto> updateTour(
             Long tourId,
             PrivateTourUpdateDto tourRequest)
@@ -379,19 +391,22 @@ public class PrivateTourService {
         );
 
 
+        //Clear Existing Destinations
+        privateTour.removeAllDestinations();
 
         //Add Destinations
-        List<TourDestination> tourDestinationList = new ArrayList<>();
         for(String destination : tourRequest.destinations())
         {
-            TourDestination tourDestination = new TourDestination(
-                    TourDestinationEnum.valueOf(destination.toUpperCase())
-            );
-            tourDestination.setTour(privateTour);
-            tourDestinationList.add(tourDestination);
+            TourDestinationEnum tourDestinationEnum = TourDestinationEnum.valueOf(destination.toUpperCase());
+            Optional<TourDestination> optionalTourDestination = tourDestinationRepository.findByName(tourDestinationEnum);
+
+            if (optionalTourDestination.isPresent())
+            {
+                privateTour.addDestination(optionalTourDestination.get());
+            }
+
         }
         
-        privateTour.setDestinations(tourDestinationList);
 
 
         try {
