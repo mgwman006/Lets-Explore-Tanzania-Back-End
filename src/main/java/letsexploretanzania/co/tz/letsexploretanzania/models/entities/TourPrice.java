@@ -16,7 +16,8 @@ public class TourPrice {
     @Column(length = 10)
     @Enumerated
     private CurrencyEnum currency;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tour_id")
     Tour tour;
 

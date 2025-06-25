@@ -1,5 +1,6 @@
 package letsexploretanzania.co.tz.letsexploretanzania.controller;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import letsexploretanzania.co.tz.letsexploretanzania.common.dtos.DeleteResponseDto;
 import letsexploretanzania.co.tz.letsexploretanzania.common.dtos.MeetingPoint;
@@ -223,6 +224,32 @@ public class PrivateTourController {
                                     result.getMessage(),
                                     result.getData(),
                                     HttpStatus.CREATED.value()
+                            )
+                    );
+        }
+
+        return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
+
+    }
+
+    @Transactional
+    @DeleteMapping(path = "/{tourId}/prices/{priceId}")
+    public ResponseEntity<ApiResponse<List<TourPriceDTO>>> addTourPrices(
+            @PathVariable
+            Long tourId,
+            @PathVariable
+            Long priceId
+    )
+    {
+        Result<List<TourPriceDTO>> result = privateTourService.deleteTourPrice(tourId,priceId);
+        if (result.isSuccess())
+        {
+            return ResponseEntity
+                    .ok(
+                            ApiResponse.success(
+                                    result.getMessage(),
+                                    result.getData(),
+                                    HttpStatus.OK.value()
                             )
                     );
         }

@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -442,6 +443,56 @@ public class PrivateTourService {
                                 .stream()
                                 .map(d-> d.getName().getName()).toList()
                 )
+        );
+    }
+
+    @Transactional
+    public Result<List<TourPriceDTO>> deleteTourPrice(Long tourId, Long priceId) {
+        Optional<Tour> optionalTour = tourRepository.findById(tourId);
+        if (optionalTour.isEmpty())
+            return Result.failure("Tour with id "+ tourId+" do not exist");
+
+        PrivateTour tour = (PrivateTour) optionalTour.get();
+
+
+
+        Optional<TourPrice> optionalTourPrice = tour.getTourPrices().stream()
+             .filter(p -> Objects.equals(p.getId(), priceId))
+                .findFirst();
+
+        if(optionalTourPrice.isEmpty())
+            return Result.failure("Price with id "+priceId+" do not exist");
+
+        tour.removeTourPrice(optionalTourPrice.get()); // triggers orphan removal
+
+
+
+        try {
+            tour = tourRepository.save(tour);
+        }
+        catch (DataIntegrityViolationException e) {
+            return Result.failure("Data integrity error: " + e.getMessage());
+        }  catch (Exception e) {
+            return Result.failure("Unexpected error: " + e.getMessage());
+        }
+
+        List<TourPrice> tourPrices = tour.getTourPrices();
+        return Result.success(
+                "price added",
+                tourPrices
+                        .stream()
+                        .map(p->
+                                new TourPriceDTO(
+                                        p.getId(),
+                                        p.getQuantity(),
+                                        p.getPricePerPerson(),
+                                        new CurrencyDTO(
+                                                p.getCurrency().getCode(),
+                                                p.getCurrency().getSymbol()
+                                        )
+
+                                )
+                        ).toList()
         );
     }
 }
