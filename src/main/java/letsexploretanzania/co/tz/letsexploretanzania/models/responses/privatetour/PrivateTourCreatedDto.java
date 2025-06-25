@@ -4,6 +4,7 @@ import java.util.List;
 
 public record PrivateTourCreatedDto(
         Long id,
+        Long tourGuideId,
         String title,
         String overView,
         int durationDays,
