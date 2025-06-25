@@ -129,5 +129,13 @@ public abstract class Tour {
     public void addPhotos(Photo photo) {
         this.photos.add(photo);
     }
+    public void upDate(
+            String title,
+            String overView,
+            int durationDays) {
+        this.title = title;
+        this.overView = overView;
+        this.durationDays = durationDays;
+    }
 }
 
