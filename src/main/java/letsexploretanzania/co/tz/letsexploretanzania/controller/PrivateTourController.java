@@ -1,5 +1,6 @@
 package letsexploretanzania.co.tz.letsexploretanzania.controller;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import letsexploretanzania.co.tz.letsexploretanzania.common.dtos.DeleteResponseDto;
 import letsexploretanzania.co.tz.letsexploretanzania.common.dtos.MeetingPoint;
@@ -8,6 +9,7 @@ import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.AddTourPriceDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.TourActivityAddDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.privatetour.PrivateTourAddDto;
+import letsexploretanzania.co.tz.letsexploretanzania.models.requests.privatetour.PrivateTourUpdateDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.*;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.privatetour.PrivateTourCreatedDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.privatetour.PrivateTourDetailsDto;
@@ -176,85 +178,6 @@ public class PrivateTourController {
 
     }
 
-    @PostMapping(path = "/{tourId}/guide")
-    public ResponseEntity<ApiResponse<TourGuideDTO>> addTourGuide(
-            @PathVariable
-            Long tourId,
-            @Valid
-            @RequestBody MeetingPoint pickingUpInformation
-    )
-    {
-        Result<TourGuideDTO> result = privateTourService.addTourGuide(tourId,pickingUpInformation);
-        if (result.isSuccess())
-        {
-            return ResponseEntity
-                    .ok(
-                            ApiResponse.success(
-                                    result.getMessage(),
-                                    result.getData(),
-                                    HttpStatus.OK.value()
-                            )
-                    );
-        }
-
-        return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
-
-    }
-
-
-
-    @PostMapping(path = "/{tourGuideId}/activity", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<List<TourActivityDetailsDTO>>> addTourActivity(
-            @PathVariable
-            Long tourGuideId,
-            @Valid
-            @RequestPart("metadata") TourActivityAddDTO tourActivity,
-            @RequestPart("images") List<MultipartFile> photos
-
-    )
-    {
-        Result<List<TourActivityDetailsDTO>> result = privateTourService.addTourActivity(tourGuideId,tourActivity,photos);
-        if (result.isSuccess())
-        {
-            return ResponseEntity
-                    .ok(
-                            ApiResponse.success(
-                                    result.getMessage(),
-                                    result.getData(),
-                                    HttpStatus.OK.value()
-                            )
-                    );
-        }
-
-        return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
-
-    }
-
-    @PostMapping(path = "/guide/{tourGuideId}/point/end")
-    public ResponseEntity<ApiResponse<MeetingPoint>> addEndOfTourInformation(
-            @PathVariable
-            Long tourGuideId,
-            @Valid
-            @RequestBody MeetingPoint endOfTourInformation
-
-    )
-    {
-        Result<MeetingPoint> result = privateTourService.addEndOfTourInformation(tourGuideId,endOfTourInformation);
-        if (result.isSuccess())
-        {
-            return ResponseEntity
-                    .ok(
-                            ApiResponse.success(
-                                    result.getMessage(),
-                                    result.getData(),
-                                    HttpStatus.OK.value()
-                            )
-                    );
-        }
-
-        return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
-
-    }
 
     @GetMapping(path = "/{tourId}/guide")
     public ResponseEntity<ApiResponse<TourGuideDTO>> getTourGuide(
@@ -278,4 +201,61 @@ public class PrivateTourController {
         return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
 
     }
+
+    @PutMapping(path = "/{tourId}")
+    public ResponseEntity<ApiResponse<PrivateTourCreatedDto>> updateTour(
+            @PathVariable
+            Long tourId,
+            @Valid
+            @RequestBody PrivateTourUpdateDto tourRequest
+    ) throws IOException
+    {
+
+        Result<PrivateTourCreatedDto> result = privateTourService.updateTour(tourId,tourRequest);
+
+        if (result.isSuccess())
+        {
+            URI uri = URI.create("/api/v1/tour");
+            return ResponseEntity
+                    .created(
+                            uri
+                    ).body(
+                            ApiResponse.success(
+                                    result.getMessage(),
+                                    result.getData(),
+                                    HttpStatus.CREATED.value()
+                            )
+                    );
+        }
+
+        return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
+
+    }
+
+    @Transactional
+    @DeleteMapping(path = "/{tourId}/prices/{priceId}")
+    public ResponseEntity<ApiResponse<List<TourPriceDTO>>> addTourPrices(
+            @PathVariable
+            Long tourId,
+            @PathVariable
+            Long priceId
+    )
+    {
+        Result<List<TourPriceDTO>> result = privateTourService.deleteTourPrice(tourId,priceId);
+        if (result.isSuccess())
+        {
+            return ResponseEntity
+                    .ok(
+                            ApiResponse.success(
+                                    result.getMessage(),
+                                    result.getData(),
+                                    HttpStatus.OK.value()
+                            )
+                    );
+        }
+
+        return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
+
+    }
+
 }

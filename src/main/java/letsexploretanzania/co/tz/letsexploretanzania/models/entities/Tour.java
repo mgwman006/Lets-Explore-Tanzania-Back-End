@@ -2,12 +2,11 @@ package letsexploretanzania.co.tz.letsexploretanzania.models.entities;
 
 
 import jakarta.persistence.*;
-import letsexploretanzania.co.tz.letsexploretanzania.common.enums.TourType;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-
+import java.util.Set;
 
 
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -23,8 +22,15 @@ public abstract class Tour {
     private String overView;
     private int durationDays;
     private String bannerImageUrl;
-    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
-    private List<TourDestination> destinations = new ArrayList<>();
+
+    @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST})
+    @JoinTable(
+            name = "tour_destination",
+            joinColumns = @JoinColumn(name = "tour_id"),
+            inverseJoinColumns = @JoinColumn(name = "destination_id")
+    )
+    private Set<TourDestination> destinations = new HashSet<>();
+
     @OneToMany(
             mappedBy = "tour",
             cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE},
@@ -100,16 +106,6 @@ public abstract class Tour {
         this.photos.add(photo);
     }
 
-
-
-    public List<TourDestination> getDestinations() {
-        return destinations;
-    }
-
-    public void setDestinations(List<TourDestination> destinations) {
-        this.destinations = destinations;
-    }
-
     public void addDestination(TourDestination tourDestination)
     {
         this.destinations.add(tourDestination);
@@ -129,5 +125,29 @@ public abstract class Tour {
     public void addPhotos(Photo photo) {
         this.photos.add(photo);
     }
+    public void upDate(
+            String title,
+            String overView,
+            int durationDays) {
+        this.title = title;
+        this.overView = overView;
+        this.durationDays = durationDays;
+    }
+
+    public Set<TourDestination> getDestinations() {
+        return destinations;
+    }
+
+    public void setDestinations(Set<TourDestination> destinations) {
+        this.destinations = destinations;
+    }
+    public void addDestinations(TourDestination destination) {
+        this.destinations.add(destination);
+    }
+
+    public void removeAllDestinations() {
+        this.destinations.clear();
+    }
+
 }
 

@@ -3,8 +3,11 @@ package letsexploretanzania.co.tz.letsexploretanzania.models.entities;
 import jakarta.persistence.*;
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.TourDestinationEnum;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
-@Table(name = "tour_destinations")
+@Table(name = "destinations")
 public class TourDestination {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)
@@ -13,9 +16,6 @@ public class TourDestination {
     @Column(length = 20)
     @Enumerated(EnumType.STRING)
     private TourDestinationEnum name;
-    @ManyToOne
-    @JoinColumn(name = "tour_id")
-    private Tour tour;
 
     public TourDestination() {
     }
@@ -32,11 +32,4 @@ public class TourDestination {
         this.name = name;
     }
 
-    public Tour getTour() {
-        return tour;
-    }
-
-    public void setTour(Tour tour) {
-        this.tour = tour;
-    }
 }
