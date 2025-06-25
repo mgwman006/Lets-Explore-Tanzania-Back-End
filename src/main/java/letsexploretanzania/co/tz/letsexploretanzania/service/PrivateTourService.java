@@ -403,7 +403,9 @@ public class PrivateTourService {
 
             if (optionalTourDestination.isPresent())
             {
-                privateTour.addDestination(optionalTourDestination.get());
+                if (!privateTour.getDestinations().contains(optionalTourDestination.get())) {
+                    privateTour.addDestination(optionalTourDestination.get());
+                }
             }
 
         }

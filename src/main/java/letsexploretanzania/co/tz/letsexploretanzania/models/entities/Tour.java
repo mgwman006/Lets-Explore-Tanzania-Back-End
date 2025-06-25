@@ -2,9 +2,7 @@ package letsexploretanzania.co.tz.letsexploretanzania.models.entities;
 
 
 import jakarta.persistence.*;
-import letsexploretanzania.co.tz.letsexploretanzania.common.enums.TourType;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +23,7 @@ public abstract class Tour {
     private int durationDays;
     private String bannerImageUrl;
 
-    @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(
             name = "tour_destination",
             joinColumns = @JoinColumn(name = "tour_id"),
