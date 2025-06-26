@@ -13,7 +13,7 @@ public class Photo {
     @JoinColumn(name = "tour_id")
     private Tour tour;
     @ManyToOne
-    @JoinColumn(name = "tour_activity_id")
+    @JoinColumn(name = "activity_id")
     private TourActivity tourActivity;
 
     public Photo() {
