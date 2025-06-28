@@ -2,6 +2,7 @@ package letsexploretanzania.co.tz.letsexploretanzania.models.entities;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,6 +20,9 @@ public abstract class Tour {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+
+    @Column(length = 500)
+    @Size(max = 500, message = "Overview must be 500 characters or less")
     private String overView;
     private int durationDays;
     private String bannerImageUrl;
