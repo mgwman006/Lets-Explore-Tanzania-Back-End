@@ -1,4 +1,4 @@
-package letsexploretanzania.co.tz.letsexploretanzania.service;
+package letsexploretanzania.co.tz.letsexploretanzania.service.common;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
