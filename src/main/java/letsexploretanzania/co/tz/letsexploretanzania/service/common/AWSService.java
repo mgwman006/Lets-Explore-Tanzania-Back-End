@@ -1,4 +1,4 @@
-package letsexploretanzania.co.tz.letsexploretanzania.service;
+package letsexploretanzania.co.tz.letsexploretanzania.service.common;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

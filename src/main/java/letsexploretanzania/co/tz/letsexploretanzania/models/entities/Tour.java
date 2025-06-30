@@ -27,6 +27,8 @@ public abstract class Tour {
     private int durationDays;
     private String bannerImageUrl;
 
+    private boolean isLive;
+
     @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(
             name = "tour_destination",
@@ -46,8 +48,8 @@ public abstract class Tour {
     @OneToOne(mappedBy = "tour", cascade = CascadeType.ALL)
     TourGuide tourGuide;
 
-    // @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
-    // private List<Booking> bookings;
+     @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+     private Set<TourBooking> bookings = new HashSet<>();
 
 
 
@@ -153,5 +155,25 @@ public abstract class Tour {
         this.destinations.clear();
     }
 
+    public Set<TourBooking> getBookings() {
+        return bookings;
+    }
+
+    public void setBookings(Set<TourBooking> bookings) {
+        this.bookings = bookings;
+    }
+
+    public void addBooking(TourBooking booking)
+    {
+        this.bookings.add(booking);
+    }
+
+    public boolean isLive() {
+        return isLive;
+    }
+
+    public void setLive(boolean live) {
+        isLive = live;
+    }
 }
 

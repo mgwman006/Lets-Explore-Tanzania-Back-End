@@ -1,15 +1,12 @@
 package letsexploretanzania.co.tz.letsexploretanzania.service;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import letsexploretanzania.co.tz.letsexploretanzania.common.dtos.DeleteResponseDto;
-import letsexploretanzania.co.tz.letsexploretanzania.common.dtos.MeetingPoint;
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.CurrencyEnum;
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.TourDestinationEnum;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.*;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.AddTourPriceDTO;
-import letsexploretanzania.co.tz.letsexploretanzania.models.requests.TourActivityAddDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.privatetour.PrivateTourAddDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.privatetour.PrivateTourUpdateDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.*;
@@ -17,21 +14,17 @@ import letsexploretanzania.co.tz.letsexploretanzania.models.responses.privatetou
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.privatetour.PrivateTourDetailsDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.privatetour.PrivateTourDetailsListItemDto;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourDestinationRepository;
-import letsexploretanzania.co.tz.letsexploretanzania.repository.TourGuideRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourRepository;
+import letsexploretanzania.co.tz.letsexploretanzania.service.common.AWSService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;

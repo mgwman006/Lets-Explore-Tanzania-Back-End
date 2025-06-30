@@ -1,7 +1,10 @@
 package letsexploretanzania.co.tz.letsexploretanzania.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.ApiResponse;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
+import letsexploretanzania.co.tz.letsexploretanzania.models.requests.EmailVerificationRequestDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.OtpRequestDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.OtpVerificationRequestDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.service.AuthService;
