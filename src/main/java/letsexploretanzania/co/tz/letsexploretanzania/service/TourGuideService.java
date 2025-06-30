@@ -1,6 +1,5 @@
 package letsexploretanzania.co.tz.letsexploretanzania.service;
 
-import jakarta.validation.Valid;
 import letsexploretanzania.co.tz.letsexploretanzania.common.dtos.MeetingPoint;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.Photo;
@@ -10,6 +9,7 @@ import letsexploretanzania.co.tz.letsexploretanzania.models.requests.TourActivit
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.TourActivityDetailsDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.TourGuideDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourGuideRepository;
+import letsexploretanzania.co.tz.letsexploretanzania.service.common.AWSService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

@@ -1,7 +1,10 @@
 package letsexploretanzania.co.tz.letsexploretanzania.service;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.ApiResponse;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
+import letsexploretanzania.co.tz.letsexploretanzania.models.entities.Tourist;
 import letsexploretanzania.co.tz.letsexploretanzania.service.common.EmailService;
 import letsexploretanzania.co.tz.letsexploretanzania.service.common.OtpService;
 import org.springframework.http.HttpStatus;
