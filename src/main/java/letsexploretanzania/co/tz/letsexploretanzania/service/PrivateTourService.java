@@ -540,4 +540,52 @@ public class PrivateTourService {
 
                 );
     }
+
+    public Result<PrivateTourDetailsDto> postTour(Long tourId) {
+        Optional<Tour> optionalTour = tourRepository.findById(tourId);
+        if (optionalTour.isEmpty())
+            return Result.failure("Tour with id "+ tourId+" do not exist");
+
+        Tour tour = optionalTour.get();
+        tour.setLive(true);
+
+        try {
+            tour = tourRepository.save(tour);
+            PrivateTour privateTour = (PrivateTour) tour;
+
+            List<String> photos = privateTour.getPhotos().stream().map(Photo::getPhotoUrl).toList();
+            return Result.success(
+                    "success",
+                    new PrivateTourDetailsDto
+                            (
+                                    privateTour.getId(),
+                                    privateTour.getTitle(),
+                                    privateTour.getOverView(),
+                                    privateTour.getDurationDays(),
+                                    privateTour.getBannerImageUrl(),
+                                    privateTour.isLive(),
+                                    privateTour.getDestinations()
+                                            .stream()
+                                            .map(d-> d.getName().getName()).toList(),
+                                    privateTour.getTourPrices()
+                                            .stream()
+                                            .map(p ->
+                                                    new TourPriceDTO(
+                                                            p.getId(),
+                                                            p.getQuantity(),
+                                                            p.getPricePerPerson(),
+                                                            new CurrencyDTO(
+                                                                    p.getCurrency().getCode(),
+                                                                    p.getCurrency().getSymbol()
+                                                            )
+                                                    )).toList(),
+                                    photos
+                            )
+            );
+        }catch (DataIntegrityViolationException e) {
+            return Result.failure("Data integrity error: " + e.getMessage());
+        }
+
+
+    }
 }
