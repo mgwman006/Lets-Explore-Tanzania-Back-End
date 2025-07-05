@@ -3,11 +3,9 @@ package letsexploretanzania.co.tz.letsexploretanzania.controller;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import letsexploretanzania.co.tz.letsexploretanzania.common.dtos.DeleteResponseDto;
-import letsexploretanzania.co.tz.letsexploretanzania.common.dtos.MeetingPoint;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.ApiResponse;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.AddTourPriceDTO;
-import letsexploretanzania.co.tz.letsexploretanzania.models.requests.TourActivityAddDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.privatetour.PrivateTourAddDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.privatetour.PrivateTourUpdateDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.*;
@@ -269,6 +267,26 @@ public class PrivateTourController {
                     ApiResponse.success(result.getData(),HttpStatus.OK.value())
             );
         }
+        return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
+    }
+
+    @PutMapping(path = "/{tourId}/go/live")
+    public ResponseEntity<ApiResponse<PrivateTourDetailsDto>> postTour(
+            @PathVariable
+            Long tourId
+    )
+    {
+        Result<PrivateTourDetailsDto> result = privateTourService.postTour(tourId);
+        if (result.isSuccess())
+        {
+            return ResponseEntity.ok(
+                    ApiResponse.success(
+                            result.getData(),
+                            HttpStatus.OK.value()
+                    )
+            );
+        }
+
         return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
     }
 
