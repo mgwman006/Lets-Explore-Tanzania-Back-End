@@ -258,4 +258,18 @@ public class PrivateTourController {
 
     }
 
+    @GetMapping(path = "/live")
+    public ResponseEntity<ApiResponse<List<PrivateTourDetailsListItemDto>>> getLiveTours()
+    {
+        Result<List<PrivateTourDetailsListItemDto>> result = privateTourService.getAllLiveTours();
+
+        if (result.isSuccess())
+        {
+            return ResponseEntity.ok(
+                    ApiResponse.success(result.getData(),HttpStatus.OK.value())
+            );
+        }
+        return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
+    }
+
 }

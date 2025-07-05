@@ -11,6 +11,7 @@ public record PrivateTourDetailsListItemDto(
         String overView,
         int durationDays,
         String bannerImageUrl,
+        boolean isLive,
         List<String> destinations,
         List<TourPriceDTO> tourPrice
 ) {

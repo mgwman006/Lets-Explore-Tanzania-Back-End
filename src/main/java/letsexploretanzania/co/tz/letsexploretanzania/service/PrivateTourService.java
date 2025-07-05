@@ -109,7 +109,7 @@ public class PrivateTourService {
         );
     }
 
-    public Result<List<PrivateTourDetailsListItemDto>> getAllTours()
+    public Result<List<PrivateTourDetailsListItemDto>> getAllLiveTours()
     {
         List<Tour> tours;
         try {
@@ -120,7 +120,7 @@ public class PrivateTourService {
 
         List<PrivateTour> privateTours = tours
                 .stream()
-                .filter(tour -> tour instanceof PrivateTour)
+                .filter(tour -> ((tour instanceof PrivateTour) && tour.isLive()))
                 .map(tour -> (PrivateTour) tour)
                 .toList();
         return Result
@@ -134,6 +134,7 @@ public class PrivateTourService {
                                                 t.getOverView(),
                                                 t.getDurationDays(),
                                                 t.getBannerImageUrl(),
+                                                t.isLive(),
                                                 t.getDestinations()
                                                         .stream()
                                                         .map(d->d.getName().getName()).toList(),
@@ -177,6 +178,7 @@ public class PrivateTourService {
                     privateTour.getOverView(),
                     privateTour.getDurationDays(),
                     privateTour.getBannerImageUrl(),
+                    privateTour.isLive(),
                     privateTour.getDestinations()
                     .stream()
                     .map(d-> d.getName().getName()).toList(),
@@ -489,5 +491,53 @@ public class PrivateTourService {
                                 )
                         ).toList()
         );
+    }
+
+    public Result<List<PrivateTourDetailsListItemDto>> getAllTours()
+    {
+        List<Tour> tours;
+        try {
+            tours = tourRepository.findAll();
+        } catch (Exception e) {
+            return Result.failure(e.getMessage());
+        }
+
+        List<PrivateTour> privateTours = tours
+                .stream()
+                .filter(tour -> tour instanceof PrivateTour)
+                .map(tour -> (PrivateTour) tour)
+                .toList();
+        return Result
+                .success(
+                        "data fetch is successfully",
+                        privateTours.stream()
+                                .map(
+                                        t -> new PrivateTourDetailsListItemDto(
+                                                t.getId(),
+                                                t.getTitle(),
+                                                t.getOverView(),
+                                                t.getDurationDays(),
+                                                t.getBannerImageUrl(),
+                                                t.isLive(),
+                                                t.getDestinations()
+                                                        .stream()
+                                                        .map(d->d.getName().getName()).toList(),
+                                                t.getTourPrices()
+                                                        .stream()
+                                                        .map(
+                                                                p-> new TourPriceDTO
+                                                                        (
+                                                                                p.getId(),
+                                                                                p.getQuantity(), p.getPricePerPerson(),
+                                                                                new CurrencyDTO(
+                                                                                        p.getCurrency().getCode(),
+                                                                                        p.getCurrency().getSymbol()
+                                                                                )
+                                                                        )
+                                                        ).toList()
+                                        )
+                                ).toList()
+
+                );
     }
 }
