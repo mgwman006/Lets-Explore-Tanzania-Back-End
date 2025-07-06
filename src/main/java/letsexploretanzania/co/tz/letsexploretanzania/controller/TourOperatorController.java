@@ -85,7 +85,7 @@ public class TourOperatorController {
         );
     }
 
-    @PostMapping(path = "/{operatorId}/private/tour", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/{operatorId}/tour/private", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<PrivateTourCreatedDto>> createPrivateTour(
             @PathVariable Long operatorId,
             @Valid
