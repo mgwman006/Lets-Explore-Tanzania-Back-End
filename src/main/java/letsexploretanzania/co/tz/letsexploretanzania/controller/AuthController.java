@@ -5,15 +5,14 @@ import jakarta.validation.constraints.Email;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.ApiResponse;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.EmailVerificationRequestDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.requests.LogInDetailsDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.OtpRequestDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.OtpVerificationRequestDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.responses.UserDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -44,5 +43,23 @@ public class AuthController {
             return ResponseEntity.ok(ApiResponse.success("success",HttpStatus.OK.value()));
         return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<UserDTO>> logIn(
+            @Valid
+            @RequestBody LogInDetailsDTO request)
+    {
+
+        Result<UserDTO> result = authService.logIn(request.email(), request.passWord());
+        if (result.isSuccess())
+            return ResponseEntity.ok(
+                    ApiResponse.success(
+                            result.getData(),
+                            HttpStatus.OK.value()
+                    )
+            );
+        return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
+    }
+
 }
 

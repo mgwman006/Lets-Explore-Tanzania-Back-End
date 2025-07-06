@@ -20,7 +20,6 @@ public abstract class Tour {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
-
     @Column(length = 500)
     @Size(max = 500, message = "Overview must be 500 characters or less")
     private String overView;
@@ -50,6 +49,10 @@ public abstract class Tour {
 
      @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
      private Set<TourBooking> bookings = new HashSet<>();
+
+     @ManyToOne( cascade = { CascadeType.MERGE, CascadeType.PERSIST})
+     @JoinColumn( name = "operator_id")
+     private TourOperator operator;
 
 
 
@@ -174,6 +177,14 @@ public abstract class Tour {
 
     public void setLive(boolean live) {
         isLive = live;
+    }
+
+    public TourOperator getOperator() {
+        return operator;
+    }
+
+    public void setOperator(TourOperator operator) {
+        this.operator = operator;
     }
 }
 

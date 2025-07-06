@@ -10,8 +10,8 @@ public enum UserType {
         this.displayName = displayName;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getName() {
+        return this.name();
     }
 }
 
