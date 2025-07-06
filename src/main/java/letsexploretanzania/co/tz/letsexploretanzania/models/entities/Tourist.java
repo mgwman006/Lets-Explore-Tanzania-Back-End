@@ -17,6 +17,9 @@ public class Tourist {
     private String phoneNumber;
     @OneToMany(mappedBy = "tourist", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<TourBooking> bookings = new HashSet<>();
+    @OneToOne( cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Tourist() {
     }
@@ -66,5 +69,12 @@ public class Tourist {
     public void addBooking(TourBooking booking)
     {
         this.bookings.add(booking);
+    }
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
