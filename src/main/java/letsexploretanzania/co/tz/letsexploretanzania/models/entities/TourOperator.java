@@ -2,6 +2,9 @@ package letsexploretanzania.co.tz.letsexploretanzania.models.entities;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "operators")
 public class TourOperator {
@@ -16,6 +19,8 @@ public class TourOperator {
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+    @OneToMany(mappedBy = "operator", cascade = { CascadeType.MERGE, CascadeType.PERSIST})
+    private Set<Tour> tours = new HashSet<>();
 
     public TourOperator() {
     }
@@ -69,6 +74,14 @@ public class TourOperator {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Set<Tour> getTours() {
+        return tours;
+    }
+
+    public void addTour(Tour tour) {
+        this.tours.add(tour);
     }
 
     @Override
