@@ -1,5 +1,6 @@
 package letsexploretanzania.co.tz.letsexploretanzania.common.dtos;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 import java.time.LocalDateTime;
