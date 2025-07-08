@@ -5,6 +5,7 @@ import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.TourOperator;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.User;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.OperatorDetailsDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.responses.UserDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -43,4 +44,32 @@ public class UserService {
         );
     }
 
+    public Result<UserDTO> resetPassWord(String email, String password)
+    {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isEmpty()) {
+            return Result.failure("User with email " + email + " not found");
+        }
+
+        User user = optionalUser.get();
+        user.setPassword(password);
+        try {
+            user =  userRepository.save(user);
+            return Result.success(
+                    "success",
+                    new UserDTO(
+                            user.getId(),
+                            user.getEmail(),
+                            user.getPassword(),
+                            user.getUserType().getName()
+                    )
+            );
+        }
+        catch (Exception e)
+        {
+            return Result.failure(
+                    e.getMessage()
+            );
+        }
+    }
 }
