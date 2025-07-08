@@ -22,7 +22,7 @@ public class TourGuide {
     @AttributeOverrides(
             {
                     @AttributeOverride(name = "location", column = @Column(name = "pickup_location")),
-                    @AttributeOverride(name = "details", column = @Column(name = "pickup_details")),
+                    @AttributeOverride(name = "details", column = @Column(name = "pickup_details", length = 500)),
                     @AttributeOverride(name = "dateTime", column = @Column(name ="pickup_dateTime"))
             }
     )
@@ -31,7 +31,7 @@ public class TourGuide {
     @AttributeOverrides(
             {
                     @AttributeOverride(name = "location", column = @Column(name = "end_location")),
-                    @AttributeOverride(name = "details", column = @Column(name = "end_details")),
+                    @AttributeOverride(name = "details", column = @Column(name = "end_details", length = 500)),
                     @AttributeOverride(name = "dateTime", column = @Column(name ="end_dateTime"))
             }
     )
