@@ -27,7 +27,6 @@ public record BookingAddDTO(
         int numberOfPeople,
         BigDecimal totalPrice,
         LocalDate tourDate,
-        @NotBlank(message = "specialRequests can not be empty")
         @Size(max = 500, message = "maximum length of allowed email is 500 characters")
         String specialRequests,
         @NotNull(message = "operator ff is required")
