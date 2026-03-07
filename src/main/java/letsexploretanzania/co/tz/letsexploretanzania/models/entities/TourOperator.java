@@ -21,6 +21,8 @@ public class TourOperator {
     private User user;
     @OneToMany(mappedBy = "operator", cascade = { CascadeType.MERGE, CascadeType.PERSIST})
     private Set<Tour> tours = new HashSet<>();
+    @OneToMany(mappedBy = "operator", cascade = { CascadeType.MERGE, CascadeType.PERSIST})
+    private Set<TourBooking> bookings = new HashSet<>();
 
     public TourOperator() {
     }
@@ -82,6 +84,10 @@ public class TourOperator {
 
     public void addTour(Tour tour) {
         this.tours.add(tour);
+    }
+    public void addBooking(TourBooking  tourBooking)
+    {
+        this.bookings.add(tourBooking);
     }
 
     @Override

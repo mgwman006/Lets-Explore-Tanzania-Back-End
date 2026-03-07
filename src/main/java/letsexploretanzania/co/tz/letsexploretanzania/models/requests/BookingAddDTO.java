@@ -1,10 +1,7 @@
 package letsexploretanzania.co.tz.letsexploretanzania.models.requests;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+
 import jakarta.validation.constraints.*;
-import letsexploretanzania.co.tz.letsexploretanzania.common.enums.BookingStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,6 +29,9 @@ public record BookingAddDTO(
         LocalDate tourDate,
         @NotBlank(message = "specialRequests can not be empty")
         @Size(max = 500, message = "maximum length of allowed email is 500 characters")
-        String specialRequests
+        String specialRequests,
+        @NotNull(message = "operator ff is required")
+        @Positive
+        Long operatorId
 ) {
 }
