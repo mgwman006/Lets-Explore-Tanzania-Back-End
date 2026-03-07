@@ -13,6 +13,7 @@ public record PrivateTourDetailsDto(
         boolean isLive,
         List<String> destinations,
         List<TourPriceDTO> tourPrice,
-        List<String> photos
+        List<String> photos,
+        Long operatorId
 ) {
 }

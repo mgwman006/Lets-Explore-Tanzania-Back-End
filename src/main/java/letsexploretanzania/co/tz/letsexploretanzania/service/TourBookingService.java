@@ -5,10 +5,12 @@ import letsexploretanzania.co.tz.letsexploretanzania.common.utils.BookingUtils;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.Tour;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.TourBooking;
+import letsexploretanzania.co.tz.letsexploretanzania.models.entities.TourOperator;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.Tourist;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.BookingAddDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.BookingCreatedDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourBookingRepository;
+import letsexploretanzania.co.tz.letsexploretanzania.repository.TourOperatorRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TouristRepository;
 import org.springframework.stereotype.Service;
@@ -22,14 +24,16 @@ public class TourBookingService {
     private final TourBookingRepository tourBookingRepository;
     private final TourRepository tourRepository;
     private final TouristRepository touristRepository;
+    private final TourOperatorRepository tourOperatorRepository;
 
     public TourBookingService(
-            TourBookingRepository tourBookingRepository,
-            TourRepository tourRepository,
-            TouristRepository touristRepository) {
+      TourBookingRepository tourBookingRepository,
+      TourRepository tourRepository,
+      TouristRepository touristRepository, TourOperatorRepository tourOperatorRepository) {
         this.tourBookingRepository = tourBookingRepository;
         this.tourRepository = tourRepository;
         this.touristRepository = touristRepository;
+      this.tourOperatorRepository = tourOperatorRepository;
     }
 
     public Result<BookingCreatedDTO> addBooking(BookingAddDTO bookingRequest)
@@ -39,8 +43,14 @@ public class TourBookingService {
             return Result.failure("Tour with id "+bookingRequest.tourId()+" not exist");
         Tour tour = optionalTour.get();
 
+        Optional<TourOperator> optionalTourOperator = tourOperatorRepository.findById(bookingRequest.tourId());
+        if (optionalTourOperator.isEmpty())
+        {
+            Result.failure("Tour with id "+bookingRequest.tourId()+" not exist");
+        }
+
         Optional<Tourist> optionalTourist = touristRepository.findByEmail(bookingRequest.email());
-        Tourist tourist = new Tourist();
+        Tourist tourist;
         if (optionalTourist.isEmpty())
         {
             tourist = new Tourist(
@@ -75,6 +85,10 @@ public class TourBookingService {
 
         booking.setTourist(tourist);
         tourist.addBooking(booking);
+
+        TourOperator tourOperator = optionalTourOperator.get();
+        booking.setOperator(tourOperator);
+        tourOperator.addBooking(booking);
 
         booking.setTour(tour);
         tour.addBooking(booking);

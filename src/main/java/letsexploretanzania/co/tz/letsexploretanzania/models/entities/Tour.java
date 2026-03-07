@@ -50,7 +50,7 @@ public abstract class Tour {
      @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
      private Set<TourBooking> bookings = new HashSet<>();
 
-     @ManyToOne( cascade = { CascadeType.MERGE, CascadeType.PERSIST})
+     @ManyToOne( cascade = { CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
      @JoinColumn( name = "operator_id")
      private TourOperator operator;
 
