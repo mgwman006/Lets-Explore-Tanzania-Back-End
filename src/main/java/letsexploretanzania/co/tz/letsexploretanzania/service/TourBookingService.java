@@ -14,9 +14,6 @@ import letsexploretanzania.co.tz.letsexploretanzania.repository.TourOperatorRepo
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TouristRepository;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -43,10 +40,10 @@ public class TourBookingService {
             return Result.failure("Tour with id "+bookingRequest.tourId()+" not exist");
         Tour tour = optionalTour.get();
 
-        Optional<TourOperator> optionalTourOperator = tourOperatorRepository.findById(bookingRequest.tourId());
+        Optional<TourOperator> optionalTourOperator = tourOperatorRepository.findById(bookingRequest.operatorId());
         if (optionalTourOperator.isEmpty())
         {
-            Result.failure("Tour with id "+bookingRequest.tourId()+" not exist");
+            return Result.failure("Operator with id "+bookingRequest.operatorId()+" not exist");
         }
 
         Optional<Tourist> optionalTourist = touristRepository.findByEmail(bookingRequest.email());

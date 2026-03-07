@@ -3,7 +3,7 @@ name: Deploy letsexploretanzania
 on:
   push:
     branches:
-      - develop
+      - develop-off
 
 jobs:
   deploy:
