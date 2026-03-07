@@ -5,8 +5,6 @@ import letsexploretanzania.co.tz.letsexploretanzania.common.enums.BookingStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "bookings")
@@ -35,6 +33,9 @@ public class TourBooking {
     )
     @JoinColumn(name = "tourist_id")
     Tourist tourist;
+    @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
+    @JoinColumn(name = "operator_id", nullable = false)
+    private TourOperator operator;
 
     private String referenceNumber;
 
@@ -65,6 +66,11 @@ public class TourBooking {
         this.specialRequests = specialRequests;
         this.status = status;
         this.referenceNumber = referenceNumber;
+    }
+
+    public void setOperator(TourOperator operator)
+    {
+        this.operator = operator;
     }
 
     public Long getId() {

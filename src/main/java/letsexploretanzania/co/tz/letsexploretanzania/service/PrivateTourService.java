@@ -194,7 +194,8 @@ public class PrivateTourService {
                                             p.getCurrency().getSymbol()
                                     )
                             )).toList(),
-                    photos
+                    photos,
+                    privateTour.getOperator().getId()
                 )
         );
     }
@@ -579,7 +580,8 @@ public class PrivateTourService {
                                                                     p.getCurrency().getSymbol()
                                                             )
                                                     )).toList(),
-                                    photos
+                                    photos,
+                                    privateTour.getOperator().getId()
                             )
             );
         }catch (DataIntegrityViolationException e) {
