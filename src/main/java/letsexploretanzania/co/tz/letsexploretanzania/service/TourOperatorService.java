@@ -1,6 +1,5 @@
 package letsexploretanzania.co.tz.letsexploretanzania.service;
 
-import jakarta.validation.Valid;
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.TourDestinationEnum;
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.TourType;
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.UserType;
@@ -8,13 +7,13 @@ import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.*;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.AddOperatorDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.privatetour.PrivateTourAddDto;
+import letsexploretanzania.co.tz.letsexploretanzania.models.responses.booking.BookingListItemDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.CreatedOperatorDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.TourListItemDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.privatetour.PrivateTourCreatedDto;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourDestinationRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourOperatorRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourRepository;
-import letsexploretanzania.co.tz.letsexploretanzania.repository.UserRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.service.common.AWSService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -194,6 +192,40 @@ public class TourOperatorService {
                                 .stream()
                                 .map(d-> d.getName().getName()).toList()
                 )
+        );
+    }
+
+    public Result<List<BookingListItemDTO>> getBookings(Long operatorId)
+    {
+        Optional<TourOperator> tourOperator = tourOperatorRepository.findById(operatorId);
+        if (tourOperator.isEmpty()) {
+            return Result.failure("Operator of id " + operatorId + " not found!");
+        }
+
+        TourOperator operator = tourOperator.get();
+        Set<TourBooking> bookings = operator.getBookings();
+
+        return Result.success(
+          "success",
+          bookings
+            .stream()
+            .map(
+              booking ->
+                new BookingListItemDTO(
+                  booking.getId(),
+                  booking.getTourist().getId(),
+                  booking.getCustomerName(),
+                  booking.getEmail(),
+                  booking.getPhoneNumber(),
+                  booking.getPricePerPerson(),
+                  booking.getNumberOfPeople(),
+                  booking.getTotalPrice(),
+                  booking.getTourDate(),
+                  booking.getSpecialRequests(),
+                  booking.getStatus(),
+                  booking.getReferenceNumber()
+                )
+            ).toList()
         );
     }
 }

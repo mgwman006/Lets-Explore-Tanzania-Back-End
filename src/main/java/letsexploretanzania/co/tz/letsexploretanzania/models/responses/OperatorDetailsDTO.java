@@ -5,6 +5,8 @@ public record OperatorDetailsDTO(
         String firstName,
         String lastName,
         String email,
-        String phone
+        String phone,
+        int numberOfBookings,
+        int numberOfTours
 ) {
 }
