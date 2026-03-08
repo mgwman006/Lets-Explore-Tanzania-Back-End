@@ -3,12 +3,10 @@ package letsexploretanzania.co.tz.letsexploretanzania.service;
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.BookingStatus;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.BookingUtils;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
-import letsexploretanzania.co.tz.letsexploretanzania.models.entities.Tour;
-import letsexploretanzania.co.tz.letsexploretanzania.models.entities.TourBooking;
-import letsexploretanzania.co.tz.letsexploretanzania.models.entities.TourOperator;
-import letsexploretanzania.co.tz.letsexploretanzania.models.entities.Tourist;
+import letsexploretanzania.co.tz.letsexploretanzania.models.entities.*;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.BookingAddDTO;
-import letsexploretanzania.co.tz.letsexploretanzania.models.responses.BookingCreatedDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.responses.booking.BookingCreatedDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.responses.booking.BookingDetailsDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourBookingRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourOperatorRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourRepository;
@@ -43,7 +41,7 @@ public class TourBookingService {
         Optional<TourOperator> optionalTourOperator = tourOperatorRepository.findById(bookingRequest.operatorId());
         if (optionalTourOperator.isEmpty())
         {
-            return Result.failure("Operator with id "+bookingRequest.operatorId()+" not exist");
+            return Result.failure("Operator with id "+bookingRequest.operatorId()+" not found");
         }
 
         Optional<Tourist> optionalTourist = touristRepository.findByEmail(bookingRequest.email());
@@ -115,5 +113,34 @@ public class TourBookingService {
                 ));
 
 
+    }
+
+    public Result<BookingDetailsDTO> getTourById(Long bookingId)
+    {
+        Optional<TourBooking> optionalTourBooking = tourBookingRepository.findById(bookingId);
+
+        if (optionalTourBooking.isEmpty())
+        {
+            return  Result.failure("Booking with id " + bookingId + " not exist");
+        }
+        TourBooking tourBooking = optionalTourBooking.get();
+        return Result.success(
+          "success",
+          new BookingDetailsDTO
+            (
+              tourBooking.getId(),
+              tourBooking.getTourist().getId(),
+              tourBooking.getCustomerName(),
+              tourBooking.getEmail(),
+              tourBooking.getPhoneNumber(),
+              tourBooking.getPricePerPerson(),
+              tourBooking.getNumberOfPeople(),
+              tourBooking.getTotalPrice(),
+              tourBooking.getTourDate(),
+              tourBooking.getSpecialRequests(),
+              tourBooking.getStatus(),
+              tourBooking.getReferenceNumber()
+            )
+        );
     }
 }
