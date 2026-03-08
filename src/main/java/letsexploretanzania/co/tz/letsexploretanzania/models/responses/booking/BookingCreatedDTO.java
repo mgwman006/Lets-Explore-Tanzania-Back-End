@@ -1,4 +1,4 @@
-package letsexploretanzania.co.tz.letsexploretanzania.models.responses;
+package letsexploretanzania.co.tz.letsexploretanzania.models.responses.booking;
 
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.BookingStatus;
 

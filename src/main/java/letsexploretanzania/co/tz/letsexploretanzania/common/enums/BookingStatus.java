@@ -6,9 +6,9 @@ public enum BookingStatus {
     CONFIRMED(3,"Confirmed", "A customer already paid for the trip"),
     CANCELLED(4,"Cancelled","A customer or an operator cancelled");
 
-    int id;
-    String description;
-    String name;
+    final int id;
+    final String description;
+    final String name;
     BookingStatus(int id, String name, String description)
     {
         this.id=id;

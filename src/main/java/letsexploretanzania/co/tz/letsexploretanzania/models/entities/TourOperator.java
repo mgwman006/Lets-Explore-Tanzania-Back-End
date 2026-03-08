@@ -90,6 +90,11 @@ public class TourOperator {
         this.bookings.add(tourBooking);
     }
 
+    public Set<TourBooking> getBookings()
+    {
+        return bookings;
+    }
+
     @Override
     public String toString() {
         return "TourOperator{" +
