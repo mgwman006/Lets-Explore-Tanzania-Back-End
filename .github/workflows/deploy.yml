@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: backend
+    environment: prod
     env:
       DB_URL: ${{ secrets.DB_URL }}
       DB_USERNAME: ${{ secrets.DB_USERNAME }}
@@ -41,11 +41,9 @@ jobs:
 
       - name: Restart Spring Boot app on EC2
         run: |
-          echo 'secrete ${{ secrets.EC2_PRIVATE_KEY }}'
-          echo 'secrete $EC2_PRIVATE_KEY'
-          echo "$EC2_PRIVATE_KEY" > private_key
-          chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key $EC2_USERNAME@$vars.EC2_HOST << 'EOF'
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > private_key
+          chmod 400 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${{ vars.EC2_USERNAME }}@${{ vars.EC2_HOST }} << 'EOF'
           echo 'Stopping existing process...'
           pkill -TERM -f letsexploretanzania || true
           sleep 5
@@ -61,4 +59,4 @@ jobs:
           echo 'Process started'
           EOF
           rm private_key
-          
+
