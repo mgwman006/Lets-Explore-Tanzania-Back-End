@@ -32,17 +32,17 @@ jobs:
       - name: Deploy JAR to EC2
         uses: appleboy/scp-action@v1
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          host: ${{ vars.EC2_HOST }}
+          username: ${{ vars.EC2_USERNAME }}
+          key: ${{ vars.EC2_PRIVATE_KEY }}
           source: 'target/letsexploretanzania-0.0.1-SNAPSHOT.jar'
           target: '/home/ubuntu/letsexploretanzania/'
 
       - name: Restart Spring Boot app on EC2
         run: |
-          echo "${{ secrets.EC2_PRIVATE_KEY }}" > private_key
+          echo "${{ vars.EC2_PRIVATE_KEY }}" > private_key
           chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i private_key ${{ vars.EC2_USERNAME }}@${{ vars.EC2_HOST }} << 'EOF'
           echo 'Stopping existing process...'
           pkill -TERM -f letsexploretanzania || true
           sleep 5
