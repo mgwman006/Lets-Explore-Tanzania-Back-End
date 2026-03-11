@@ -15,6 +15,9 @@ jobs:
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       SERVER_PORT: ${{ secrets.SERVER_PORT }}
     steps:
+      - name: Debug EC2 key first line
+        run: |
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" | head -n 1
       - name: Checkout code
         uses: actions/checkout@v3
 
