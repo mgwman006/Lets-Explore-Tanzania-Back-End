@@ -8,12 +8,14 @@ import letsexploretanzania.co.tz.letsexploretanzania.models.entities.Tourist;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.User;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.UserDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.UserRepository;
+import letsexploretanzania.co.tz.letsexploretanzania.service.common.AWSService;
 import letsexploretanzania.co.tz.letsexploretanzania.service.common.EmailService;
 import letsexploretanzania.co.tz.letsexploretanzania.service.common.OtpService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
+import software.amazon.awssdk.services.ses.model.SesException;
 
 import java.util.Optional;
 
@@ -76,5 +78,18 @@ public class AuthService {
                         userDetails.getUserType().getName()
                 )
         );
+    }
+
+    public Result<String> sendGenericEmail(String toAddress,String subject ,String bodyText)
+    {
+        try
+        {
+            emailService.sendGenericEmail(toAddress,subject,bodyText);
+            return Result.success("success","success");
+        }//try
+        catch (SesException e)
+        {
+            return Result.failure(e.getMessage());
+        }
     }
 }
