@@ -6,6 +6,8 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.ses.SesClient;
+import software.amazon.awssdk.services.ses.model.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +17,8 @@ import java.nio.file.Path;
 @Service
 public class AWSService {
 
-    public String saveImageToS3(MultipartFile image, String objectName) throws IOException {
+    public String saveImageToS3(MultipartFile image, String objectName) throws IOException
+    {
 
 
         File tempFile = File.createTempFile("upload-", image.getOriginalFilename());
@@ -44,6 +47,28 @@ public class AWSService {
             throw new RuntimeException("Failed to upload image to S3", e);
         }
 
+    }
+
+    public static void sendEmailViaSES(String toAddress, String subject, String bodyText)
+    {
+        String sender = "noreply@letsexploretanzania.com";
+
+        // Create SES client
+        SesClient sesClient = SesClient.builder().region(Region.EU_WEST_2).build();
+        SendEmailRequest emailRequest = SendEmailRequest.builder()
+          .destination(Destination.builder()
+            .toAddresses(toAddress)
+            .build())
+          .message(Message.builder()
+            .subject(Content.builder().data(subject).build())
+            .body(Body.builder()
+              .text(Content.builder().data(bodyText).build())
+              .build())
+            .build())
+          .source(sender)
+          .build();
+
+        sesClient.sendEmail(emailRequest);
     }
 
 }

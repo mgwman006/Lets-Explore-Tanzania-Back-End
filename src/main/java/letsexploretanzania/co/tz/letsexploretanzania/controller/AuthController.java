@@ -4,10 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.ApiResponse;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
-import letsexploretanzania.co.tz.letsexploretanzania.models.requests.EmailVerificationRequestDTO;
-import letsexploretanzania.co.tz.letsexploretanzania.models.requests.LogInDetailsDTO;
-import letsexploretanzania.co.tz.letsexploretanzania.models.requests.OtpRequestDTO;
-import letsexploretanzania.co.tz.letsexploretanzania.models.requests.OtpVerificationRequestDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.requests.*;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.UserDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.service.AuthService;
 import org.springframework.http.HttpStatus;
@@ -58,6 +55,15 @@ public class AuthController {
                             HttpStatus.OK.value()
                     )
             );
+        return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
+    }
+
+    @PostMapping(path = "/email")
+    public ResponseEntity<ApiResponse<String>> sendEmail(@RequestBody GenericEmailDTO genericEmailDTO)
+    {
+        Result<String> result = authService.sendGenericEmail(genericEmailDTO.toAddress(), genericEmailDTO.subject(), genericEmailDTO.bodyText());
+        if (result.isSuccess())
+            return ResponseEntity.ok(ApiResponse.success("success", HttpStatus.OK.value()));
         return ResponseEntity.badRequest().body(ApiResponse.failure(result.getMessage(), HttpStatus.BAD_REQUEST.value()));
     }
 
