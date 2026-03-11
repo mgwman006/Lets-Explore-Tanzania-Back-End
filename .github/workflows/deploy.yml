@@ -31,7 +31,10 @@ jobs:
         run: ./mvnw clean package
       - name: Debug EC2 key
         run: |
-          echo "Private key starts with: ${secrets:EC2_PRIVATE_KEY:0:20}"
+          echo "Private key starts with: ${secrets.EC2_PRIVATE_KEY}"
+      - name: Debug EC2 key
+        run: |
+          echo "Private key starts with: $EC2_PRIVATE_KEY"
 
       - name: Deploy JAR to EC2
         uses: appleboy/scp-action@v1
