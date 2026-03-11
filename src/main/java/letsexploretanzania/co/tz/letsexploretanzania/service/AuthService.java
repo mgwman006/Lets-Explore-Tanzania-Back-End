@@ -34,14 +34,14 @@ public class AuthService {
     public Result<String> sendOtp(String email)
     {
         String otp = otpService.generateOtp(email);
-        try {
-            emailService.sendOtpEmail(email, otp);
+        try
+        {
+            emailService.sendGenericEmail(email, "Your OTP Code","Your OTP is: " + otp+" This will expire in 5 minutes");
             return Result.success("success","success");
         }catch (Exception e)
         {
             return Result.failure(e.getMessage());
         }
-
     }
     public Result<String> verifyOtp(String email, String otp)
     {
