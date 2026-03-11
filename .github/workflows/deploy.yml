@@ -34,13 +34,13 @@ jobs:
         with:
           host: ${{ vars.EC2_HOST }}
           username: ${{ vars.EC2_USERNAME }}
-          key: ${{ vars.EC2_PRIVATE_KEY }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
           source: 'target/letsexploretanzania-0.0.1-SNAPSHOT.jar'
           target: '/home/ubuntu/letsexploretanzania/'
 
       - name: Restart Spring Boot app on EC2
         run: |
-          echo "${{ vars.EC2_PRIVATE_KEY }}" > private_key
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > private_key
           chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${{ vars.EC2_USERNAME }}@${{ vars.EC2_HOST }} << 'EOF'
           echo 'Stopping existing process...'
