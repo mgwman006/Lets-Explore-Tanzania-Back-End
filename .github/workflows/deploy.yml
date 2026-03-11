@@ -41,6 +41,8 @@ jobs:
 
       - name: Restart Spring Boot app on EC2
         run: |
+          echo ${{ secrets.EC2_PRIVATE_KEY }}
+          echo $EC2_PRIVATE_KEY
           echo "${{ secrets.EC2_PRIVATE_KEY }}" > private_key
           chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key $EC2_USERNAME@$vars.EC2_HOST << 'EOF'
@@ -59,4 +61,4 @@ jobs:
           echo 'Process started'
           EOF
           rm private_key
-
+          
