@@ -1,10 +1,12 @@
 package letsexploretanzania.co.tz.letsexploretanzania.service;
 
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.BookingStatus;
+import letsexploretanzania.co.tz.letsexploretanzania.common.enums.UserType;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.BookingUtils;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.*;
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.BookingAddDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.requests.BookingContactPerson;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.booking.BookingCreatedDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.booking.BookingDetailsDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourBookingRepository;
@@ -44,17 +46,31 @@ public class TourBookingService {
             return Result.failure("Operator with id "+bookingRequest.operatorId()+" not found");
         }
 
-        Optional<Tourist> optionalTourist = touristRepository.findByEmail(bookingRequest.email());
+        Optional<Tourist> optionalTourist = touristRepository.findByEmail(bookingRequest.contactPerson().email());
         Tourist tourist;
         if (optionalTourist.isEmpty())
         {
+            User user = new User(
+              bookingRequest.contactPerson().email(),
+              bookingRequest.contactPerson().firstName(),
+              UserType.TOURIST
+            );
+
             tourist = new Tourist(
-                    bookingRequest.customerName(),
-                    bookingRequest.email(),
-                    bookingRequest.phoneNumber());
-            try {
+                    bookingRequest.contactPerson().firstName(),
+                    bookingRequest.contactPerson().lastName(),
+                    bookingRequest.contactPerson().email(),
+                    bookingRequest.contactPerson().phoneNumber());
+
+            tourist.setUser(user);
+            user.setTourist(tourist);
+
+            try
+            {
                 tourist = touristRepository.save(tourist);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 return Result.failure(e.getMessage());
             }
         }
@@ -66,15 +82,12 @@ public class TourBookingService {
         String bookingRefenceNumber = BookingUtils.generateBookingReference();
 
         TourBooking booking = new TourBooking(
-                bookingRequest.customerName(),
-                bookingRequest.email(),
-                bookingRequest.phoneNumber(),
                 bookingRequest.pricePerPerson(),
                 bookingRequest.numberOfPeople(),
                 bookingRequest.totalPrice(),
                 bookingRequest.tourDate(),
                 bookingRequest.specialRequests(),
-                BookingStatus.NEW,
+                BookingStatus.PENDING_PAYMENT,
                 bookingRefenceNumber
         );
 
@@ -94,22 +107,25 @@ public class TourBookingService {
             return Result.failure(e.getMessage());
         }
 
-
+        tourist = booking.getTourist();
         return Result.success(
                 "success",
                 new BookingCreatedDTO(
                         booking.getId(),
                         booking.getTourist().getId(),
-                        booking.getCustomerName(),
-                        booking.getEmail(),
-                        booking.getPhoneNumber(),
                         booking.getPricePerPerson(),
                         booking.getNumberOfPeople(),
                         booking.getTotalPrice(),
                         booking.getTourDate(),
                         booking.getSpecialRequests(),
                         booking.getStatus(),
-                        booking.getReferenceNumber()
+                        booking.getReferenceNumber(),
+                        new BookingContactPerson(
+                          tourist.getFirstName(),
+                          tourist.getLastName(),
+                          tourist.getEmail(),
+                          tourist.getPhoneNumber()
+                        )
                 ));
 
 

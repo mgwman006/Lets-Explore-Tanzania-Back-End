@@ -44,9 +44,6 @@ public class TourBooking {
     }
 
     public TourBooking(
-            String customerName,
-            String email,
-            String phoneNumber,
             BigDecimal pricePerPerson,
             int numberOfPeople,
             BigDecimal totalPrice,
@@ -56,9 +53,6 @@ public class TourBooking {
             String referenceNumber
     )
     {
-        this.customerName = customerName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
         this.pricePerPerson = pricePerPerson;
         this.numberOfPeople = numberOfPeople;
         this.totalPrice = totalPrice;
