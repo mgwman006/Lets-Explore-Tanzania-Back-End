@@ -14,8 +14,10 @@ import letsexploretanzania.co.tz.letsexploretanzania.models.responses.privatetou
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourDestinationRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourOperatorRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourRepository;
+import letsexploretanzania.co.tz.letsexploretanzania.repository.UserRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.service.common.AWSService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,38 +35,43 @@ public class TourOperatorService {
     private final TourRepository tourRepository;
     private final AWSService awsService;
     private final TourDestinationRepository tourDestinationRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public TourOperatorService(
-            TourOperatorRepository tourOperatorRepository,
-            TourRepository tourRepository,
-            AWSService awsService,
-            TourDestinationRepository tourDestinationRepository
+      TourOperatorRepository tourOperatorRepository,
+      TourRepository tourRepository,
+      AWSService awsService,
+      TourDestinationRepository tourDestinationRepository, UserRepository userRepository
     )
     {
         this.tourOperatorRepository = tourOperatorRepository;
         this.tourRepository = tourRepository;
         this.awsService = awsService;
         this.tourDestinationRepository = tourDestinationRepository;
+      this.userRepository = userRepository;
     }
 
     public Result<CreatedOperatorDto> registerOperator(AddOperatorDto operatorDto)
     {
+        if(userRepository.existsByEmail(operatorDto.email()))
+        {
+            return Result.failure("Email already registered");
+        }
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         User user = new User(
                 operatorDto.email(),
-                operatorDto.passWord(),
+                passwordEncoder.encode(operatorDto.passWord()),
                 UserType.TOUROPERATOR
         );
 
         TourOperator tourOperator = new TourOperator(
                 operatorDto.firstName(),
                 operatorDto.lastName(),
-                operatorDto.email(),
                 operatorDto.phone()
         );
 
         tourOperator.setUser(user);
-        user.setTourOperator(tourOperator);
 
         try
         {
@@ -75,7 +82,7 @@ public class TourOperatorService {
                             tourOperator.getId(),
                             tourOperator.getFirstName(),
                             tourOperator.getLastName(),
-                            tourOperator.getEmail(),
+                            tourOperator.getUser().getEmail(),
                             tourOperator.getPhone()
                     )
             );

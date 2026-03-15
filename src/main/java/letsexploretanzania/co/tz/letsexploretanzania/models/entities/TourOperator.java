@@ -14,7 +14,6 @@ public class TourOperator {
     private Long id;
     private String firstName;
     private String lastName;
-    private String email;
     private String phone;
     @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -27,10 +26,9 @@ public class TourOperator {
     public TourOperator() {
     }
 
-    public TourOperator(String firstName, String lastName, String email, String phone) {
+    public TourOperator(String firstName, String lastName, String phone) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.email = email;
         this.phone = phone;
     }
 
@@ -54,14 +52,6 @@ public class TourOperator {
         this.lastName = lastName;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getPhone() {
         return phone;
     }
@@ -74,8 +64,13 @@ public class TourOperator {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(User user)
+    {
         this.user = user;
+        if (user.getTourOperator() != this)
+        {
+            user.setTourOperator(this);
+        }
     }
 
     public Set<Tour> getTours() {
@@ -101,7 +96,6 @@ public class TourOperator {
                 "id=" + id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
                 ", user=" + user +
                 '}';

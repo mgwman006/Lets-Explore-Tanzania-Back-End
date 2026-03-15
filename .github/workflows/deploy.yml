@@ -54,6 +54,9 @@ jobs:
           export DB_USERNAME="${{ secrets.DB_USERNAME }}"
           export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
           export SERVER_PORT="${{ secrets.SERVER_PORT }}"
+          export PAYPAL_CLIENT_ID="${{ secrets.PAYPAL_CLIENT_ID }}"
+          export PAYPAL_CLIENT_SECRET="${{ secrets.PAYPAL_CLIENT_SECRET }}"
+          export PAYPAL_ENV="${{ vars.PAYPAL_ENV }}"
           
           nohup java -jar letsexploretanzania-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
           echo 'Process started'

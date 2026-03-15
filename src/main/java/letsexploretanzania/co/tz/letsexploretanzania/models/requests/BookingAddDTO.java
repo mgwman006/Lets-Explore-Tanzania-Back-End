@@ -10,16 +10,6 @@ public record BookingAddDTO(
         @NotNull
         @Positive(message = "tour id must be greater than zero")
         Long tourId,
-        @NotBlank(message = "name can not be blank")
-        @Size(max = 50, message = "Maximum Size for name is 50 characters")
-        String customerName,
-        @NotBlank(message = "email can not be empty")
-        @Size(max = 50, message = "maximum length of allowed email is 50 characters")
-        @Email(message = "must be valid email")
-        String email,
-        @NotBlank(message = "phoneNumber can npt be blank")
-        @Size(max = 20, message = "maximum number of allowed characters is 20")
-        String phoneNumber,
         @NotNull(message = "price can not be null")
         @Positive(message = "price must be positive")
         BigDecimal pricePerPerson,
@@ -31,6 +21,8 @@ public record BookingAddDTO(
         String specialRequests,
         @NotNull(message = "operator ff is required")
         @Positive
-        Long operatorId
+        Long operatorId,
+        @NotNull(message = "contact person is required")
+        BookingContactPerson contactPerson
 ) {
 }
