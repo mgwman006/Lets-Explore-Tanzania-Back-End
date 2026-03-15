@@ -9,10 +9,7 @@ import letsexploretanzania.co.tz.letsexploretanzania.models.requests.BookingAddD
 import letsexploretanzania.co.tz.letsexploretanzania.models.requests.BookingContactPerson;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.booking.BookingCreatedDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.booking.BookingDetailsDTO;
-import letsexploretanzania.co.tz.letsexploretanzania.repository.TourBookingRepository;
-import letsexploretanzania.co.tz.letsexploretanzania.repository.TourOperatorRepository;
-import letsexploretanzania.co.tz.letsexploretanzania.repository.TourRepository;
-import letsexploretanzania.co.tz.letsexploretanzania.repository.TouristRepository;
+import letsexploretanzania.co.tz.letsexploretanzania.repository.*;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
@@ -22,15 +19,17 @@ public class TourBookingService {
     private final TourRepository tourRepository;
     private final TouristRepository touristRepository;
     private final TourOperatorRepository tourOperatorRepository;
+    private final UserRepository userRepository;
 
     public TourBookingService(
       TourBookingRepository tourBookingRepository,
       TourRepository tourRepository,
-      TouristRepository touristRepository, TourOperatorRepository tourOperatorRepository) {
+      TouristRepository touristRepository, TourOperatorRepository tourOperatorRepository, UserRepository userRepository) {
         this.tourBookingRepository = tourBookingRepository;
         this.tourRepository = tourRepository;
         this.touristRepository = touristRepository;
-      this.tourOperatorRepository = tourOperatorRepository;
+        this.tourOperatorRepository = tourOperatorRepository;
+        this.userRepository = userRepository;
     }
 
     public Result<BookingCreatedDTO> addBooking(BookingAddDTO bookingRequest)
@@ -46,9 +45,8 @@ public class TourBookingService {
             return Result.failure("Operator with id "+bookingRequest.operatorId()+" not found");
         }
 
-        Optional<Tourist> optionalTourist = touristRepository.findByEmail(bookingRequest.contactPerson().email());
         Tourist tourist;
-        if (optionalTourist.isEmpty())
+        if (!userRepository.existsByEmail(bookingRequest.contactPerson().email()))
         {
             User user = new User(
               bookingRequest.contactPerson().email(),
@@ -59,11 +57,9 @@ public class TourBookingService {
             tourist = new Tourist(
                     bookingRequest.contactPerson().firstName(),
                     bookingRequest.contactPerson().lastName(),
-                    bookingRequest.contactPerson().email(),
                     bookingRequest.contactPerson().phoneNumber());
 
             tourist.setUser(user);
-            user.setTourist(tourist);
 
             try
             {
@@ -76,7 +72,15 @@ public class TourBookingService {
         }
         else
         {
-            tourist = optionalTourist.get();
+            Optional<User> optionalUser = userRepository.findByEmail(bookingRequest.contactPerson().email());
+            if (optionalUser.isEmpty())
+                return Result.failure("User not found");
+
+            User user = optionalUser.get();
+            if (user.getUserType() != UserType.TOURIST)
+                return Result.failure("User of type "+user.getUserType()+" not supported");
+
+            tourist = user.getTourist();
         }
 
         String bookingRefenceNumber = BookingUtils.generateBookingReference();
@@ -123,7 +127,7 @@ public class TourBookingService {
                         new BookingContactPerson(
                           tourist.getFirstName(),
                           tourist.getLastName(),
-                          tourist.getEmail(),
+                          tourist.getUser().getEmail(),
                           tourist.getPhoneNumber()
                         )
                 ));

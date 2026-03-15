@@ -10,7 +10,4 @@ import java.util.Optional;
 
 @Repository
 public interface TouristRepository extends JpaRepository<Tourist, Long> {
-    boolean existsByEmail(String email);
-    Optional<Tourist> findByEmail(String email);
-
 }

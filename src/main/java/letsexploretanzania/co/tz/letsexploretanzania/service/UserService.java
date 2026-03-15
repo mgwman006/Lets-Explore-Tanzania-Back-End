@@ -38,7 +38,7 @@ public class UserService {
                         tourOperator.getId(),
                         tourOperator.getFirstName(),
                         tourOperator.getLastName(),
-                        tourOperator.getEmail(),
+                        tourOperator.getUser().getEmail(),
                         tourOperator.getPhone(),
                         tourOperator.getBookings().size(),
                         tourOperator.getTours().size()

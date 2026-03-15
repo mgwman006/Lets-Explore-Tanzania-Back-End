@@ -14,7 +14,6 @@ public class Tourist {
     private Long id;
     private String firstName;
     private String lastName;
-    private String email;
     private String phoneNumber;
     @OneToMany(mappedBy = "tourist", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<TourBooking> bookings = new HashSet<>();
@@ -25,23 +24,14 @@ public class Tourist {
     public Tourist() {
     }
 
-    public Tourist(String firstName, String lastName, String email, String phoneNumber) {
+    public Tourist(String firstName, String lastName, String phoneNumber) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.email = email;
         this.phoneNumber = phoneNumber;
     }
 
     public Long getId() {
         return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getPhoneNumber() {
@@ -68,8 +58,13 @@ public class Tourist {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(User user)
+    {
         this.user = user;
+        if (user.getTourist() != this)
+        {
+            user.setTourist(this);
+        }
     }
 
     public String getFirstName()
