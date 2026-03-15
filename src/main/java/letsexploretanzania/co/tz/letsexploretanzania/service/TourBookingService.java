@@ -163,4 +163,28 @@ public class TourBookingService {
             )
         );
     }
+    public Result<String> updateTourPaymentStatus(String tourRefenceNumber, BookingStatus bookingStatus)
+    {
+        Optional<TourBooking> optionalTourBooking = tourBookingRepository.findByReferenceNumber(tourRefenceNumber);
+
+        if (optionalTourBooking.isEmpty())
+        {
+            return  Result.failure("Booking with referenceNumber " + tourRefenceNumber + " not exist");
+        }
+
+        TourBooking tourBooking = optionalTourBooking.get();
+        tourBooking.setStatus(bookingStatus);
+
+        try
+        {
+            tourBookingRepository.save(tourBooking);
+            return Result.success("success","success");
+        }
+        catch (Exception exception)
+        {
+            return Result.failure(exception.getMessage());
+        }
+
+
+    }
 }

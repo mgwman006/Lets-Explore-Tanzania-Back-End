@@ -36,7 +36,7 @@ public class TourBooking {
     @ManyToOne(cascade = {CascadeType.MERGE,CascadeType.PERSIST})
     @JoinColumn(name = "operator_id", nullable = false)
     private TourOperator operator;
-
+    @Column(unique = true, nullable = false)
     private String referenceNumber;
 
 
