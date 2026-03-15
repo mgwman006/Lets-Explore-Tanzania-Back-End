@@ -7,6 +7,7 @@ import letsexploretanzania.co.tz.letsexploretanzania.models.entities.User;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.OperatorDetailsDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.responses.UserDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -52,9 +53,9 @@ public class UserService {
         if (optionalUser.isEmpty()) {
             return Result.failure("User with email " + email + " not found");
         }
-
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         User user = optionalUser.get();
-        user.setPassword(password);
+        user.setPassword(passwordEncoder.encode(password));
         try {
             user =  userRepository.save(user);
             return Result.success(

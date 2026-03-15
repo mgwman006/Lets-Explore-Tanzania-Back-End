@@ -13,6 +13,7 @@ import letsexploretanzania.co.tz.letsexploretanzania.service.common.EmailService
 import letsexploretanzania.co.tz.letsexploretanzania.service.common.OtpService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 import software.amazon.awssdk.services.ses.model.SesException;
@@ -60,12 +61,14 @@ public class AuthService {
             String passWord
     )
     {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isEmpty()) {
             return Result.failure("user with given email not found");
         }
         User userDetails = user.get();
-        if (!passWord.equals(userDetails.getPassword())) {
+        if(!passwordEncoder.matches(passWord, userDetails.getPassword()))
+        {
             return Result.failure("wrong password");
         }
 
