@@ -1,5 +1,6 @@
 package letsexploretanzania.co.tz.letsexploretanzania.service.common;
 
+import letsexploretanzania.co.tz.letsexploretanzania.constants.Constants;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.regions.Region;
@@ -26,8 +27,8 @@ public class AWSService {
 
 
         Path path = tempFile.toPath();
-        String bucketName = "letsexploretanzania";
-        final String region = "eu-west-2"; // Replace with your region
+        String bucketName = Constants.BUCKET_NAME;
+        final String region = Region.EU_WEST_2.toString(); // Replace with your region
         S3Client s3Client = S3Client.builder().region(Region.of(region)).build();
 
 
