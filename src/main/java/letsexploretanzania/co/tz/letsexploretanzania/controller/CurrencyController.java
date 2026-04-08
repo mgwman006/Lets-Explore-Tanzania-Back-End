@@ -1,9 +1,8 @@
 package letsexploretanzania.co.tz.letsexploretanzania.controller;
 
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.CurrencyEnum;
-import letsexploretanzania.co.tz.letsexploretanzania.common.enums.TourDestinationEnum;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.ApiResponse;
-import letsexploretanzania.co.tz.letsexploretanzania.models.responses.CurrencyDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.responses.CurrencyDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
