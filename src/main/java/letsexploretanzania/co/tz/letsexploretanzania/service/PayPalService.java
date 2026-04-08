@@ -7,7 +7,7 @@ import com.paypal.sdk.http.response.ApiResponse;
 import com.paypal.sdk.models.*;
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.BookingStatus;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
-import letsexploretanzania.co.tz.letsexploretanzania.models.requests.PayPalOrderDetailsDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.requests.PayPalOrderDetailsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

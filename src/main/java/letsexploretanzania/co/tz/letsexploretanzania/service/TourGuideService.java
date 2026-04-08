@@ -5,11 +5,10 @@ import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.Photo;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.TourActivity;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.TourGuide;
-import letsexploretanzania.co.tz.letsexploretanzania.models.requests.TourActivityAddDTO;
-import letsexploretanzania.co.tz.letsexploretanzania.models.responses.TourActivityDetailsDTO;
-import letsexploretanzania.co.tz.letsexploretanzania.models.responses.TourGuideDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.requests.TourActivityAddDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.responses.TourActivityDetailsDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.responses.TourGuideDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourGuideRepository;
-import letsexploretanzania.co.tz.letsexploretanzania.service.common.AWSService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

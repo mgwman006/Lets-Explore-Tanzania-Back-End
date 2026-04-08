@@ -2,20 +2,19 @@ package letsexploretanzania.co.tz.letsexploretanzania.service;
 
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.TourDestinationEnum;
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.TourType;
-import letsexploretanzania.co.tz.letsexploretanzania.common.enums.UserType;
+import letsexploretanzania.co.tz.letsexploretanzania.common.enums.RoleNameEnum;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.*;
-import letsexploretanzania.co.tz.letsexploretanzania.models.requests.AddOperatorDto;
-import letsexploretanzania.co.tz.letsexploretanzania.models.requests.privatetour.PrivateTourAddDto;
-import letsexploretanzania.co.tz.letsexploretanzania.models.responses.booking.BookingListItemDTO;
-import letsexploretanzania.co.tz.letsexploretanzania.models.responses.CreatedOperatorDto;
-import letsexploretanzania.co.tz.letsexploretanzania.models.responses.TourListItemDTO;
-import letsexploretanzania.co.tz.letsexploretanzania.models.responses.privatetour.PrivateTourCreatedDto;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.requests.AddOperatorDto;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.requests.privatetour.PrivateTourAddDto;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.responses.booking.BookingListItemDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.responses.CreatedOperatorDto;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.responses.TourListItemDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.responses.privatetour.PrivateTourCreatedDto;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourDestinationRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourOperatorRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.TourRepository;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.UserRepository;
-import letsexploretanzania.co.tz.letsexploretanzania.service.common.AWSService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -54,17 +53,16 @@ public class TourOperatorService {
 
     public Result<CreatedOperatorDto> registerOperator(AddOperatorDto operatorDto)
     {
-        if(userRepository.existsByEmail(operatorDto.email()))
+        if(userRepository.existsByUserName(operatorDto.email()))
         {
             return Result.failure("Email already registered");
         }
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         User user = new User(
                 operatorDto.email(),
-                passwordEncoder.encode(operatorDto.passWord()),
-                UserType.TOUROPERATOR
+                passwordEncoder.encode(operatorDto.passWord())
         );
-
+        user.addRole(new Role(RoleNameEnum.OPERATOR));
         TourOperator tourOperator = new TourOperator(
                 operatorDto.firstName(),
                 operatorDto.lastName(),
@@ -82,7 +80,7 @@ public class TourOperatorService {
                             tourOperator.getId(),
                             tourOperator.getFirstName(),
                             tourOperator.getLastName(),
-                            tourOperator.getUser().getEmail(),
+                            tourOperator.getUser().getUsername(),
                             tourOperator.getPhone()
                     )
             );

@@ -1,35 +1,43 @@
 package letsexploretanzania.co.tz.letsexploretanzania.service;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import letsexploretanzania.co.tz.letsexploretanzania.common.utils.ApiResponse;
+import letsexploretanzania.co.tz.letsexploretanzania.common.enums.UserStatus;
+import letsexploretanzania.co.tz.letsexploretanzania.common.utils.JwtUtils;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
-import letsexploretanzania.co.tz.letsexploretanzania.models.entities.Tourist;
+import letsexploretanzania.co.tz.letsexploretanzania.constants.Constants;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.responses.auth.JwtTokenDetails;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.User;
-import letsexploretanzania.co.tz.letsexploretanzania.models.responses.UserDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.responses.UserDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.UserRepository;
-import letsexploretanzania.co.tz.letsexploretanzania.service.common.AWSService;
-import letsexploretanzania.co.tz.letsexploretanzania.service.common.EmailService;
-import letsexploretanzania.co.tz.letsexploretanzania.service.common.OtpService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
-import software.amazon.awssdk.services.ses.model.SesException;
-
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
     private final OtpService otpService;
     private final EmailService emailService;
     private final UserRepository userRepository;
+    private final AuthenticationManager  authenticationManager;
+    private final JwtUtils jwtUtils;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthService(OtpService otpService, EmailService emailService, UserRepository userRepository) {
-        this.otpService = otpService;
-        this.emailService = emailService;
-        this.userRepository = userRepository;
+
+
+    public AuthService(OtpService otpService, EmailService emailService, UserRepository userRepository, AuthenticationManager authenticationManager, JwtUtils jwtUtils, PasswordEncoder passwordEncoder)
+    {
+      this.otpService = otpService;
+      this.emailService = emailService;
+      this.userRepository = userRepository;
+      this.authenticationManager = authenticationManager;
+      this.jwtUtils = jwtUtils;
+      this.passwordEncoder = passwordEncoder;
     }
 
     public Result<String> sendOtp(String email)
@@ -37,8 +45,10 @@ public class AuthService {
         String otp = otpService.generateOtp(email);
         try
         {
-            emailService.sendGenericEmail(email, "Your OTP Code","Your OTP is: " + otp+" This will expire in 5 minutes");
-            return Result.success("success","success");
+            emailService.sendGenericEmail(email,
+              "Your OTP Code","Your OTP is: " + otp+" This will expire in 5 minutes",
+              "<p>Your OTP is: <strong>" + otp + "</strong>. This will expire in 5 minutes.</p>");
+            return Result.success(Constants.SUCCESS,Constants.SUCCESS);
         }catch (Exception e)
         {
             return Result.failure(e.getMessage());
@@ -49,50 +59,73 @@ public class AuthService {
         try {
             boolean isValid = otpService.validateOtp(email, otp);
             if (isValid)
-                return Result.success("success","Otp validated");
+                return Result.success(Constants.SUCCESS,"Otp validated");
             return Result.failure("validation failed");
         } catch (Exception e) {
             return Result.failure(e.getMessage());
         }
     }
 
-    public Result<UserDTO> logIn(
-            String email,
-            String passWord
-    )
-    {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        Optional<User> user = userRepository.findByEmail(email);
-        if (user.isEmpty()) {
-            return Result.failure("user with given email not found");
-        }
-        User userDetails = user.get();
-        if(!passwordEncoder.matches(passWord, userDetails.getPassword()))
-        {
-            return Result.failure("wrong password");
-        }
-
-        return Result.success(
-                "Login success",
-                new UserDTO(
-                        userDetails.getId(),
-                        userDetails.getEmail(),
-                        userDetails.getPassword(),
-                        userDetails.getUserType().getName()
-                )
-        );
-    }
-
-    public Result<String> sendGenericEmail(String toAddress,String subject ,String bodyText)
+    public Result<JwtTokenDetails> logIn(String email, String passWord)
     {
         try
         {
-            emailService.sendGenericEmail(toAddress,subject,bodyText);
-            return Result.success("success","success");
-        }//try
-        catch (SesException e)
+          Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, passWord));
+          UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+          String token = jwtUtils.generateToken(
+          userDetails.getUsername(),
+          userDetails.getAuthorities()
+            .stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.toSet())
+          );
+
+            return Result.success(
+                "Login success",
+                new JwtTokenDetails(
+                        userDetails.getUsername(),
+                        token
+            ));
+
+        }
+        catch (BadCredentialsException e)
         {
             return Result.failure(e.getMessage());
         }
+    }
+
+    public Result<UserDTO> resetPassWord(String email, String password)
+    {
+        Optional<User> optionalUser = userRepository.findByUserName(email);
+        if (optionalUser.isEmpty()) {
+            return Result.failure("User with email " + email + " not found");
+        }
+        User user = optionalUser.get();
+        user.setPassword(passwordEncoder.encode(password));
+        try {
+            user =  userRepository.save(user);
+            return Result.success(
+              Constants.SUCCESS,
+              new UserDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getPassword(),
+                ""
+              )
+            );
+        }
+        catch (Exception e)
+        {
+            return Result.failure(
+              e.getMessage()
+            );
+        }
+    }
+
+    public Result<UserStatus> verifyUserByUserName(String email)
+    {
+        if (!userRepository.existsByUserName(email))
+            return Result.success("success", UserStatus.NONEXISTENT);
+        return Result.success("success", UserStatus.EXIST);
     }
 }

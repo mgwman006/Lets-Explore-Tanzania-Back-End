@@ -2,7 +2,7 @@ package letsexploretanzania.co.tz.letsexploretanzania.controller;
 
 import com.paypal.sdk.models.*;
 import jakarta.validation.Valid;
-import letsexploretanzania.co.tz.letsexploretanzania.models.requests.PayPalOrderDetailsDTO;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.requests.PayPalOrderDetailsDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.service.PayPalService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
