@@ -26,37 +26,11 @@ import java.util.List;
 public class TourOperatorController {
 
     private final TourOperatorService tourOperatorService;
-    private final PrivateTourService privateTourService;
 
 
-    public TourOperatorController(TourOperatorService tourOperatorService, PrivateTourService privateTourService) {
-        this.tourOperatorService = tourOperatorService;
-        this.privateTourService = privateTourService;
-    }
-
-    @PostMapping
-    public ResponseEntity<ApiResponse<CreatedOperatorDto>> registerTourOperator(
-            @Valid
-            @RequestBody AddOperatorDto tourOperator
-    )
+    public TourOperatorController(TourOperatorService tourOperatorService)
     {
-        Result<CreatedOperatorDto> result = tourOperatorService.registerOperator(tourOperator);
-        if (result.isSuccess()) {
-            URI location = URI.create("operator/created");
-            return ResponseEntity.created(location).body(
-                    ApiResponse.success(
-                            result.getData(),
-                            HttpStatus.OK.value()
-                    )
-            );
-        }
-
-        return ResponseEntity.badRequest().body(
-                ApiResponse.failure(
-                        result.getMessage(),
-                        HttpStatus.BAD_REQUEST.value()
-                )
-        );
+        this.tourOperatorService = tourOperatorService;
     }
 
     @GetMapping(path = "/{operatorId}/tours")

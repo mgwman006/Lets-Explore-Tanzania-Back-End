@@ -34,61 +34,19 @@ public class TourOperatorService {
     private final TourRepository tourRepository;
     private final AWSService awsService;
     private final TourDestinationRepository tourDestinationRepository;
-    private final UserRepository userRepository;
 
     @Autowired
     public TourOperatorService(
       TourOperatorRepository tourOperatorRepository,
       TourRepository tourRepository,
       AWSService awsService,
-      TourDestinationRepository tourDestinationRepository, UserRepository userRepository
+      TourDestinationRepository tourDestinationRepository
     )
     {
         this.tourOperatorRepository = tourOperatorRepository;
         this.tourRepository = tourRepository;
         this.awsService = awsService;
         this.tourDestinationRepository = tourDestinationRepository;
-      this.userRepository = userRepository;
-    }
-
-    public Result<CreatedOperatorDto> registerOperator(AddOperatorDto operatorDto)
-    {
-        if(userRepository.existsByUserName(operatorDto.email()))
-        {
-            return Result.failure("Email already registered");
-        }
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        User user = new User(
-                operatorDto.email(),
-                passwordEncoder.encode(operatorDto.passWord())
-        );
-        user.addRole(new Role(RoleNameEnum.OPERATOR));
-        TourOperator tourOperator = new TourOperator(
-                operatorDto.firstName(),
-                operatorDto.lastName(),
-                operatorDto.phone()
-        );
-
-        tourOperator.setUser(user);
-
-        try
-        {
-            tourOperator = tourOperatorRepository.save(tourOperator);
-            return Result.success(
-                    "success",
-                    new CreatedOperatorDto(
-                            tourOperator.getId(),
-                            tourOperator.getFirstName(),
-                            tourOperator.getLastName(),
-                            tourOperator.getUser().getUsername(),
-                            tourOperator.getPhone()
-                    )
-            );
-        }
-        catch (Exception e)
-        {
-            return  Result.failure(e.getMessage());
-        }
     }
 
     public Result<List<TourListItemDTO>> getTours(Long operatorId) {

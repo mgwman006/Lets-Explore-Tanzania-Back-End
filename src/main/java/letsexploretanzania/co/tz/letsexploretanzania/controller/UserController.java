@@ -16,28 +16,54 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService)
+    {
         this.userService = userService;
     }
 
-    @GetMapping(path = "/{userId}/operator")
-    public ResponseEntity<ApiResponse<OperatorDetailsDTO>> getUserOperator(@PathVariable Long userId)
+    @GetMapping(path = "/{username}/operator")
+    public ResponseEntity<ApiResponse<OperatorDetailsDTO>> getUserOperator(@PathVariable String username)
     {
-        Result<OperatorDetailsDTO> result = userService.getOperator(userId);
+        Result<OperatorDetailsDTO> result = userService.getOperator(username);
         if (result.isSuccess()) {
             return ResponseEntity.ok(
-                    ApiResponse.success(
-                            result.getData(),
-                            HttpStatus.OK.value()
-                    )
+              ApiResponse.success(
+                result.getData(),
+                HttpStatus.OK.value()
+              )
             );
         }
 
         return ResponseEntity.badRequest().body(
-                ApiResponse.failure(
-                        result.getMessage(),
-                        HttpStatus.BAD_REQUEST.value()
-                )
+          ApiResponse.failure(
+            result.getMessage(),
+            HttpStatus.BAD_REQUEST.value()
+          )
         );
     }
+
+//    @PostMapping
+//    public ResponseEntity<ApiResponse<CreatedOperatorDto>> registerTourOperator(
+//      @Valid
+//      @RequestBody AddOperatorDto tourOperator
+//    )
+//    {
+//        Result<CreatedOperatorDto> result = tourOperatorService.registerOperator(tourOperator);
+//        if (result.isSuccess()) {
+//            URI location = URI.create("operator/created");
+//            return ResponseEntity.created(location).body(
+//              ApiResponse.success(
+//                result.getData(),
+//                HttpStatus.OK.value()
+//              )
+//            );
+//        }
+//
+//        return ResponseEntity.badRequest().body(
+//          ApiResponse.failure(
+//            result.getMessage(),
+//            HttpStatus.BAD_REQUEST.value()
+//          )
+//        );
+//    }
 }

@@ -43,6 +43,7 @@ public class AppSecurityConfig
           .requestMatchers("/api/v1/booking/**").permitAll()
           .requestMatchers(HttpMethod.GET,"/api/v1/tour/**").permitAll()
           .requestMatchers(HttpMethod.GET,"/api/v1/destination/**").permitAll()
+          .requestMatchers(HttpMethod.GET,"/api/v1/currency/**").permitAll()
           .anyRequest().authenticated()
       );
 

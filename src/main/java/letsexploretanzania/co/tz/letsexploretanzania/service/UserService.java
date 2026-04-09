@@ -3,12 +3,16 @@ package letsexploretanzania.co.tz.letsexploretanzania.service;
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.RoleNameEnum;
 import letsexploretanzania.co.tz.letsexploretanzania.common.enums.UserStatus;
 import letsexploretanzania.co.tz.letsexploretanzania.common.utils.Result;
+import letsexploretanzania.co.tz.letsexploretanzania.constants.Constants;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.requests.AddOperatorDto;
+import letsexploretanzania.co.tz.letsexploretanzania.models.dto.responses.CreatedOperatorDto;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.Role;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.TourOperator;
 import letsexploretanzania.co.tz.letsexploretanzania.models.entities.User;
 import letsexploretanzania.co.tz.letsexploretanzania.models.dto.responses.OperatorDetailsDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.models.dto.responses.UserDTO;
 import letsexploretanzania.co.tz.letsexploretanzania.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -24,18 +28,21 @@ public class UserService {
       this.passwordEncoder = passwordEncoder;
     }
 
-    public Result<OperatorDetailsDTO> getOperator(Long userId)
+    public Result<OperatorDetailsDTO> getOperator(String username)
     {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-            return Result.failure("User with id " + userId + " not found");
+        Optional<User> optionalUser = userRepository.findByUserName(username);
+        if (optionalUser.isEmpty())
+        {
+            return Result.failure("User with username " + username + " not found");
         }
 
-        if (!optionalUser.get().getRoles().contains(new Role(RoleNameEnum.OPERATOR))) {
-            return Result.failure("User with id " + userId + " is NOT a TOUROPERATOR");
-        }
+        User user = optionalUser.get();
+        TourOperator tourOperator = user.getTourOperator();
 
-        TourOperator tourOperator = optionalUser.get().getTourOperator();
+        if (tourOperator == null)
+        {
+            return Result.failure("No operator profile linked with username " + username);
+        }
 
         return Result.success(
                 "success",
@@ -48,6 +55,12 @@ public class UserService {
                         tourOperator.getBookings().size(),
                         tourOperator.getTours().size()
                 )
+          Constants.SUCCESS,
+          new OperatorDetailsDTO(
+            tourOperator.getId(),
+            tourOperator.getFirstName(),
+            tourOperator.getLastName(),
+            tourOperator.getPhone(),
         );
     }
 
@@ -89,4 +102,44 @@ public class UserService {
             return Result.failure(exception.getMessage());
         }
     }
+
+//    public Result<CreatedOperatorDto> registerOperator(AddOperatorDto operatorDto)
+//    {
+//        if(userRepository.existsByUserName(operatorDto.email()))
+//        {
+//            return Result.failure("Email already registered");
+//        }
+//        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+//        User user = new User(
+//          operatorDto.email(),
+//          passwordEncoder.encode(operatorDto.passWord())
+//        );
+//        user.addRole(new Role(RoleNameEnum.OPERATOR));
+//        TourOperator tourOperator = new TourOperator(
+//          operatorDto.firstName(),
+//          operatorDto.lastName(),
+//          operatorDto.phone()
+//        );
+//
+//        tourOperator.setUser(user);
+//
+//        try
+//        {
+//            tourOperator = tourOperatorRepository.save(tourOperator);
+//            return Result.success(
+//              "success",
+//              new CreatedOperatorDto(
+//                tourOperator.getId(),
+//                tourOperator.getFirstName(),
+//                tourOperator.getLastName(),
+//                tourOperator.getUser().getUsername(),
+//                tourOperator.getPhone()
+//              )
+//            );
+//        }
+//        catch (Exception e)
+//        {
+//            return  Result.failure(e.getMessage());
+//        }
+//    }
 }
